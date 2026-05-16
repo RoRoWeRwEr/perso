@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="مراجعة ريان">
+<meta name="theme-color" content="#F8F6F1">
+<title>مراجعة الأسبوع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #F8F6F1;
+    --bg2: #EFECEA;
+    --bg3: #E5E2DC;
+    --surface: #FFFFFF;
+    --border: #D8D4CC;
+    --text-primary: #1A1714;
+    --text-secondary: #5C574F;
+    --text-muted: #9C9690;
+    --accent-work: #1B4F8A;
+    --accent-health: #1A6B3A;
+    --accent-personal: #7A3B8C;
+    --accent-invest: #B8621A;
+    --accent-energy: #C4373A;
+    --accent-main: #1B4F8A;
+    --success: #1A6B3A;
+    --warning: #B8621A;
+    --danger: #C4373A;
+    --shadow: 0 2px 12px rgba(26,23,20,0.08);
+    --shadow-lg: 0 8px 32px rgba(26,23,20,0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font: 'IBM Plex Sans Arabic', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── Screens ── */
+  .screen { display: none; min-height: 100vh; padding-bottom: 80px; }
+  .screen.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Header ── */
+  .app-header {
+    background: var(--surface);
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-header h1 { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+  .app-header .week-label { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg2); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.92); background: var(--bg3); }
+
+  /* ── Bottom Nav ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; padding: 8px 0 20px;
+    z-index: 200;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    padding: 6px 4px; cursor: pointer;
+    border: none; background: none;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .nav-item .nav-icon { font-size: 22px; }
+  .nav-item .nav-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+  .nav-item.active .nav-label { color: var(--accent-main); }
+  .nav-item.active .nav-icon { transform: scale(1.1); }
+  .nav-item:active { transform: scale(0.95); }
+
+  /* ── Home Screen ── */
+  .home-content { padding: 16px; }
+
+  .energy-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .energy-card .label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .energy-dots { display: flex; gap: 8px; align-items: center; }
+  .energy-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer;
+    transition: all 0.2s; background: var(--bg2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+  }
+  .energy-dot.active { background: var(--accent-main); border-color: var(--accent-main); color: white; transform: scale(1.15); }
+  .energy-label { font-size: 13px; color: var(--text-secondary); margin-right: 8px; font-weight: 500; }
+
+  .sections-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+  .section-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-card:active { transform: scale(0.98); box-shadow: none; }
+  .section-left { display: flex; align-items: center; gap: 12px; }
+  .section-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .section-info h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .section-info .section-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .section-right { display: flex; align-items: center; gap: 10px; }
+  .score-badge {
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .pending-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--danger);
+  }
+  .chevron { font-size: 14px; color: var(--text-muted); }
+
+  /* Section colors */
+  .sec-work .section-icon { background: #EBF1F9; }
+  .sec-health .section-icon { background: #EBF5EF; }
+  .sec-personal .section-icon { background: #F3EBF7; }
+  .sec-invest .section-icon { background: #FAF0E6; }
+  .sec-work .score-badge { background: #EBF1F9; color: var(--accent-work); }
+  .sec-health .score-badge { background: #EBF5EF; color: var(--accent-health); }
+  .sec-personal .score-badge { background: #F3EBF7; color: var(--accent-personal); }
+  .sec-invest .score-badge { background: #FAF0E6; color: var(--accent-invest); }
+
+  .stats-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .stat-card {
+    flex: 1; background: var(--surface);
+    border-radius: var(--radius-sm); padding: 14px;
+    border: 1px solid var(--border); text-align: center;
+  }
+  .stat-card .stat-num {
+    font-family: var(--font-mono); font-size: 26px; font-weight: 500;
+    color: var(--text-primary); line-height: 1;
+  }
+  .stat-card .stat-num.danger { color: var(--danger); }
+  .stat-card .stat-num.success { color: var(--success); }
+  .stat-card .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  .review-btn {
+    width: 100%; padding: 16px;
+    background: var(--accent-main); color: white;
+    border: none; border-radius: var(--radius);
+    font-family: var(--font); font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    box-shadow: 0 4px 16px rgba(27,79,138,0.3);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 16px;
+  }
+  .review-btn:active { transform: scale(0.98); box-shadow: none; }
+
+  .streak-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .streak-info .streak-num {
+    font-family: var(--font-mono); font-size: 28px; font-weight: 500; color: var(--warning);
+  }
+  .streak-info .streak-label { font-size: 12px; color: var(--text-muted); }
+  .streak-emoji { font-size: 32px; }
+
+  /* ── Quick Capture FAB ── */
+  .fab {
+    position: fixed; bottom: 88px; left: 20px;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--accent-main); color: white;
+    border: none; font-size: 24px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(27,79,138,0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 150;
+  }
+  .fab:active { transform: scale(0.9); }
+
+  /* ── Section Detail Screen ── */
+  .section-detail { padding: 16px; }
+  .detail-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .back-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg2); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; transition: all 0.15s;
+  }
+  .back-btn:active { transform: scale(0.9); }
+  .detail-title { font-size: 20px; font-weight: 700; }
+
+  .subsection { margin-bottom: 20px; }
+  .subsection-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .subsection-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .add-btn {
+    font-size: 12px; color: var(--accent-main); font-weight: 600;
+    border: none; background: none; cursor: pointer; padding: 4px 8px;
+    border-radius: 6px; font-family: var(--font);
+  }
+  .add-btn:active { background: var(--bg2); }
+
+  .task-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    margin-bottom: 8px; display: flex; align-items: flex-start;
+    gap: 12px; transition: all 0.2s;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+  .task-item.completed { opacity: 0.5; }
+  .task-item.completed .task-text { text-decoration: line-through; color: var(--text-muted); }
+
+  .task-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer;
+    flex-shrink: 0; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg2); margin-top: 1px;
+  }
+  .task-check.done { background: var(--success); border-color: var(--success); color: white; font-size: 12px; }
+  .task-check:active { transform: scale(0.85); }
+
+  .task-text { font-size: 14px; color: var(--text-primary); line-height: 1.5; flex: 1; }
+  .task-delete {
+    font-size: 16px; color: var(--text-muted); cursor: pointer;
+    border: none; background: none; padding: 0 4px; flex-shrink: 0;
+  }
+  .task-delete:active { color: var(--danger); }
+
+  .score-selector { display: flex; gap: 8px; margin-top: 4px; }
+  .score-btn {
+    width: 40px; height: 40px; border-radius: 10px;
+    border: 2px solid var(--border); background: var(--bg2);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; font-family: var(--font);
+  }
+  .score-btn.selected { color: white; border-color: transparent; transform: scale(1.1); }
+  .score-btn:active { transform: scale(0.9); }
+
+  .goal-input {
+    width: 100%; padding: 12px 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-family: var(--font);
+    font-size: 14px; color: var(--text-primary); resize: none;
+    outline: none; transition: border-color 0.15s;
+    direction: rtl;
+  }
+  .goal-input:focus { border-color: var(--accent-main); }
+  .goal-input::placeholder { color: var(--text-muted); }
+
+  /* ── Review Session Screen ── */
+  .review-session { padding: 20px 16px; }
+  .review-progress {
+    display: flex; gap: 4px; margin-bottom: 24px;
+  }
+  .progress-dot {
+    flex: 1; height: 3px; border-radius: 2px;
+    background: var(--bg3); transition: background 0.3s;
+  }
+  .progress-dot.done { background: var(--accent-main); }
+
+  .review-question-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+  }
+  .question-num { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 8px; }
+  .question-text { font-size: 17px; font-weight: 600; color: var(--text-primary); line-height: 1.5; margin-bottom: 16px; }
+  .question-hint { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  .scale-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; }
+  .scale-btn {
+    width: 44px; height: 44px; border-radius: 10px;
+    border: 2px solid var(--border); background: var(--bg2);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; font-family: var(--font-mono);
+  }
+  .scale-btn.selected { background: var(--accent-main); border-color: var(--accent-main); color: white; transform: scale(1.08); }
+  .scale-btn:active { transform: scale(0.9); }
+
+  .review-textarea {
+    width: 100%; min-height: 100px; padding: 14px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-family: var(--font);
+    font-size: 14px; color: var(--text-primary); resize: none;
+    outline: none; line-height: 1.6; direction: rtl;
+    transition: all 0.15s; margin-top: 12px;
+  }
+  .review-textarea:focus { border-color: var(--accent-main); background: var(--surface); }
+  .review-textarea::placeholder { color: var(--text-muted); }
+
+  .triangle-options { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .triangle-opt {
+    padding: 12px 16px; border-radius: var(--radius-sm);
+    border: 2px solid var(--border); background: var(--surface);
+    font-size: 14px; cursor: pointer; transition: all 0.15s;
+    font-family: var(--font); color: var(--text-primary); text-align: right;
+  }
+  .triangle-opt.selected { border-color: var(--accent-main); background: #EBF1F9; }
+  .triangle-opt:active { transform: scale(0.98); }
+
+  .nav-btns { display: flex; gap: 10px; }
+  .btn-prev {
+    flex: 0 0 auto; padding: 14px 20px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-family: var(--font);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    color: var(--text-secondary); transition: all 0.15s;
+  }
+  .btn-next {
+    flex: 1; padding: 14px;
+    background: var(--accent-main); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-family: var(--font); font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-next:active, .btn-prev:active { transform: scale(0.97); }
+
+  /* ── Summary Screen ── */
+  .summary-content { padding: 16px; }
+  .summary-header { text-align: center; padding: 20px 0 24px; }
+  .summary-header .emoji { font-size: 48px; margin-bottom: 8px; }
+  .summary-header h2 { font-size: 22px; font-weight: 700; }
+  .summary-header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+  .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .score-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .score-card .sc-icon { font-size: 22px; }
+  .score-card .sc-label { font-size: 12px; color: var(--text-muted); }
+  .score-card .sc-score { font-family: var(--font-mono); font-size: 22px; font-weight: 500; }
+
+  .summary-insight {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+  }
+  .summary-insight .ins-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .summary-insight .ins-text { font-size: 14px; color: var(--text-primary); line-height: 1.6; }
+
+  .export-btn {
+    width: 100%; padding: 14px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-family: var(--font);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    color: var(--text-secondary); margin-bottom: 8px;
+    transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .export-btn:active { transform: scale(0.98); }
+  .done-btn {
+    width: 100%; padding: 16px;
+    background: var(--success); color: white;
+    border: none; border-radius: var(--radius);
+    font-family: var(--font); font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    box-shadow: 0 4px 16px rgba(26,107,58,0.3);
+  }
+  .done-btn:active { transform: scale(0.98); }
+
+  /* ── History Screen ── */
+  .history-content { padding: 16px; }
+  .history-week {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .history-week:active { transform: scale(0.99); }
+  .hw-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .hw-date { font-size: 14px; font-weight: 600; }
+  .hw-energy { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
+  .hw-scores { display: flex; gap: 8px; }
+  .hw-score-chip {
+    font-size: 11px; padding: 3px 8px; border-radius: 20px;
+    font-family: var(--font-mono); font-weight: 500;
+  }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(26,23,20,0.5);
+    z-index: 300; display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-sheet {
+    width: 100%; max-width: 430px; margin: 0 auto;
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    padding: 20px; transform: translateY(100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .modal-overlay.open .modal-sheet { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--bg3); border-radius: 2px; margin: 0 auto 16px; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+  .modal-input {
+    width: 100%; padding: 14px; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-family: var(--font); font-size: 15px; color: var(--text-primary);
+    outline: none; direction: rtl; margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+  .modal-input:focus { border-color: var(--accent-main); background: var(--surface); }
+  .modal-type-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .type-btn {
+    padding: 7px 14px; border-radius: 20px;
+    border: 2px solid var(--border); background: var(--bg2);
+    font-family: var(--font); font-size: 13px; cursor: pointer;
+    transition: all 0.15s; color: var(--text-secondary);
+  }
+  .type-btn.selected { background: var(--accent-main); border-color: var(--accent-main); color: white; }
+  .modal-submit {
+    width: 100%; padding: 14px;
+    background: var(--accent-main); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-family: var(--font); font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .modal-submit:active { transform: scale(0.98); }
+
+  .empty-state { text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px; }
+  .empty-state .empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+  /* Health-specific */
+  .health-checks { display: flex; flex-direction: column; gap: 8px; }
+  .health-check-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .health-check-item:active { transform: scale(0.98); }
+  .hci-left { display: flex; align-items: center; gap: 10px; }
+  .hci-icon { font-size: 18px; }
+  .hci-text { font-size: 14px; font-weight: 500; }
+  .hci-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .toggle {
+    width: 44px; height: 24px; border-radius: 12px;
+    background: var(--bg3); position: relative; transition: background 0.2s;
+  }
+  .toggle.on { background: var(--success); }
+  .toggle::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+    border-radius: 50%; background: white; top: 2px; right: 2px;
+    transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle.on::after { transform: translateX(-20px); }
+
+  /* Notification badge */
+  .notif-badge {
+    position: absolute; top: -2px; right: -2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--danger); color: white;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--bg);
+  }
+  .nav-item { position: relative; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HOME SCREEN ═══════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="app-header">
+    <div>
+      <h1>مراجعة الأسبوع</h1>
+      <div class="week-label" id="week-label">الأسبوع ٢١ — مايو ٢٠٢٦</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showScreen('screen-history')" title="السجل">📊</button>
+      <button class="icon-btn" onclick="exportData()" title="تصدير">⬆️</button>
+    </div>
+  </div>
+
+  <div class="home-content">
+    <!-- Energy -->
+    <div class="energy-card">
+      <div class="label">ENERGY LEVEL</div>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div class="energy-dots" id="energy-dots">
+          <div class="energy-dot" onclick="setEnergy(1)">١</div>
+          <div class="energy-dot" onclick="setEnergy(2)">٢</div>
+          <div class="energy-dot" onclick="setEnergy(3)">٣</div>
+          <div class="energy-dot" onclick="setEnergy(4)">٤</div>
+          <div class="energy-dot" onclick="setEnergy(5)">٥</div>
+        </div>
+        <span class="energy-label" id="energy-label">اختر مستوى طاقتك</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num danger" id="pending-count">0</div>
+        <div class="stat-label">متأخر</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num success" id="done-count">0</div>
+        <div class="stat-label">منجز هذا الأسبوع</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="streak-num" style="color:var(--warning)">0</div>
+        <div class="stat-label">أسابيع متواصلة</div>
+      </div>
+    </div>
+
+    <!-- Section Cards -->
+    <div class="sections-grid">
+      <div class="section-card sec-work" onclick="showSection('work')">
+        <div class="section-left">
+          <div class="section-icon">💼</div>
+          <div class="section-info">
+            <h3>العمل والمهني</h3>
+            <div class="section-meta" id="work-meta">اضغط للمراجعة</div>
+          </div>
+        </div>
+        <div class="section-right">
+          <span class="score-badge" id="work-score">—/٥</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="section-card sec-health" onclick="showSection('health')">
+        <div class="section-left">
+          <div class="section-icon">🏃</div>
+          <div class="section-info">
+            <h3>الصحة والجسد</h3>
+            <div class="section-meta" id="health-meta">اضغط للمراجعة</div>
+          </div>
+        </div>
+        <div class="section-right">
+          <span class="score-badge" id="health-score">—/٥</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="section-card sec-personal" onclick="showSection('personal')">
+        <div class="section-left">
+          <div class="section-icon">👤</div>
+          <div class="section-info">
+            <h3>الشخصي والعلاقات</h3>
+            <div class="section-meta" id="personal-meta">اضغط للمراجعة</div>
+          </div>
+        </div>
+        <div class="section-right">
+          <span class="score-badge" id="personal-score">—/٥</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div class="section-card sec-invest" onclick="showSection('invest')">
+        <div class="section-left">
+          <div class="section-icon">📈</div>
+          <div class="section-info">
+            <h3>الاستثمار والمالي</h3>
+            <div class="section-meta" id="invest-meta">اضغط للمراجعة</div>
+          </div>
+        </div>
+        <div class="section-right">
+          <span class="score-badge" id="invest-score">—/٥</span>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Button -->
+    <button class="review-btn" onclick="startReview()">
+      ▶ ابدأ مراجعة السبت
+    </button>
+
+    <!-- Streak -->
+    <div class="streak-card">
+      <div class="streak-info">
+        <div class="streak-num" id="streak-big">0</div>
+        <div class="streak-label">أسبوع متواصل بدون انقطاع</div>
+      </div>
+      <div class="streak-emoji">🔥</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SECTION DETAIL ═══════════════ -->
+<div id="screen-section" class="screen">
+  <div class="app-header">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button class="back-btn" onclick="showScreen('screen-home')">‹</button>
+      <div>
+        <h1 id="detail-title">القسم</h1>
+        <div class="week-label" id="detail-week"></div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="detail-icon" style="font-size:20px;">💼</button>
+    </div>
+  </div>
+
+  <div class="section-detail" id="section-content"></div>
+</div>
+
+<!-- ═══════════════ REVIEW SESSION ═══════════════ -->
+<div id="screen-review" class="screen">
+  <div class="app-header">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button class="back-btn" onclick="showScreen('screen-home')">‹</button>
+      <div>
+        <h1>جلسة المراجعة</h1>
+        <div class="week-label" id="review-week-label"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="review-session">
+    <div class="review-progress" id="review-progress"></div>
+    <div id="review-card"></div>
+    <div class="nav-btns">
+      <button class="btn-prev" id="btn-prev" onclick="reviewPrev()">السابق</button>
+      <button class="btn-next" id="btn-next" onclick="reviewNext()">التالي ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SUMMARY ═══════════════ -->
+<div id="screen-summary" class="screen">
+  <div class="app-header">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button class="back-btn" onclick="showScreen('screen-home')">‹</button>
+      <h1>ملخص الأسبوع</h1>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="exportData()">⬆️</button>
+    </div>
+  </div>
+  <div class="summary-content" id="summary-content"></div>
+</div>
+
+<!-- ═══════════════ HISTORY ═══════════════ -->
+<div id="screen-history" class="screen">
+  <div class="app-header">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button class="back-btn" onclick="showScreen('screen-home')">‹</button>
+      <h1>السجل الأسبوعي</h1>
+    </div>
+  </div>
+  <div class="history-content" id="history-content"></div>
+</div>
+
+<!-- ═══════════════ BOTTOM NAV ═══════════════ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showScreen('screen-home');setActiveNav('nav-home')">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">الرئيسية</span>
+  </button>
+  <button class="nav-item" id="nav-review" onclick="startReview();setActiveNav('nav-review')">
+    <span class="nav-icon">✍️</span>
+    <span class="nav-label">مراجعة</span>
+  </button>
+  <button class="nav-item" id="nav-history" onclick="showScreen('screen-history');setActiveNav('nav-history')">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">السجل</span>
+  </button>
+</nav>
+
+<!-- FAB Quick Capture -->
+<button class="fab" onclick="openCapture()" title="Quick Capture">＋</button>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">إضافة سريعة</div>
+    <input class="modal-input" id="modal-input" placeholder="اكتب هنا..." />
+    <div class="modal-type-row" id="modal-types">
+      <button class="type-btn selected" onclick="selectType(this,'done')">✅ منجز</button>
+      <button class="type-btn" onclick="selectType(this,'pending')">🔴 متأخر</button>
+      <button class="type-btn" onclick="selectType(this,'followup')">👁 متابعة</button>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">القسم</div>
+      <div class="modal-type-row" id="modal-sections">
+        <button class="type-btn selected" onclick="selectSection(this,'work')">💼 العمل</button>
+        <button class="type-btn" onclick="selectSection(this,'health')">🏃 الصحة</button>
+        <button class="type-btn" onclick="selectSection(this,'personal')">👤 الشخصي</button>
+        <button class="type-btn" onclick="selectSection(this,'invest')">📈 الاستثمار</button>
+      </div>
+    </div>
+    <button class="modal-submit" onclick="submitCapture()">حفظ</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE & STORAGE
+// ══════════════════════════════════════════════
+const STORAGE_KEY = 'rayan_weekly_v2';
+
+function getWeekKey() {
+  const d = new Date();
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `${d.getFullYear()}-W${String(week).padStart(2,'0')}`;
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+function getCurrentWeek() {
+  const state = loadState();
+  const key = getWeekKey();
+  if (!state[key]) {
+    state[key] = {
+      key, energy: 0, streak: state._streak || 0,
+      sections: {
+        work:     { score: 0, goal: '', done: [], pending: [], followup: [] },
+        health:   { score: 0, goal: '', done: [], pending: [], followup: [], checks: { sleep: false, zone2: false, fasting: false, caffeine: false } },
+        personal: { score: 0, goal: '', done: [], pending: [], followup: [] },
+        invest:   { score: 0, goal: '', done: [], pending: [], followup: [] }
+      },
+      review: {}, completedAt: null,
+      createdAt: new Date().toISOString()
+    };
+    saveState(state);
+  }
+  return { state, week: state[key], key };
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-home') refreshHome();
+  if (id === 'screen-history') renderHistory();
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  HOME
+// ══════════════════════════════════════════════
+const ARABIC_NUMS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabic(n) { return String(n).replace(/\d/g, d => ARABIC_NUMS[d]); }
+
+function getWeekLabel() {
+  const d = new Date();
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  return `الأسبوع ${toArabic(week)} — ${months[d.getMonth()]} ${toArabic(d.getFullYear())}`;
+}
+
+const SECTION_COLORS = { work: '#1B4F8A', health: '#1A6B3A', personal: '#7A3B8C', invest: '#B8621A' };
+const SCORE_LABELS = { 0: '—', 1: '١', 2: '٢', 3: '٣', 4: '٤', 5: '٥' };
+
+function refreshHome() {
+  const { week } = getCurrentWeek();
+  document.getElementById('week-label').textContent = getWeekLabel();
+  document.getElementById('review-week-label').textContent = getWeekLabel();
+  document.getElementById('detail-week').textContent = getWeekLabel();
+
+  // Energy
+  document.querySelectorAll('#energy-dots .energy-dot').forEach((d, i) => {
+    d.classList.toggle('active', i + 1 === week.energy);
+  });
+  const eLabels = ['', 'منهك ⚠️', 'متعب', 'عادي', 'جيد 👍', 'ممتاز ⚡'];
+  document.getElementById('energy-label').textContent = week.energy ? eLabels[week.energy] : 'اختر مستوى طاقتك';
+
+  // Scores
+  const secs = ['work', 'health', 'personal', 'invest'];
+  secs.forEach(s => {
+    const sec = week.sections[s];
+    const score = sec.score;
+    const scoreEl = document.getElementById(`${s}-score`);
+    scoreEl.textContent = `${score ? toArabic(score) : '—'}/٥`;
+    scoreEl.style.color = score ? SECTION_COLORS[s] : '';
+    const total = sec.done.length + sec.pending.length + sec.followup.length;
+    const metaEl = document.getElementById(`${s}-meta`);
+    metaEl.textContent = total > 0 ? `${toArabic(sec.done.length)} منجز · ${toArabic(sec.pending.length)} متأخر` : 'اضغط للمراجعة';
+  });
+
+  // Stats
+  let pending = 0, done = 0;
+  secs.forEach(s => {
+    pending += week.sections[s].pending.length;
+    done += week.sections[s].done.length;
+  });
+  document.getElementById('pending-count').textContent = toArabic(pending);
+  document.getElementById('done-count').textContent = toArabic(done);
+
+  const state = loadState();
+  const streak = state._streak || 0;
+  document.getElementById('streak-num').textContent = toArabic(streak);
+  document.getElementById('streak-big').textContent = toArabic(streak);
+}
+
+function setEnergy(val) {
+  const { state, week, key } = getCurrentWeek();
+  week.energy = val;
+  state[key] = week;
+  saveState(state);
+  refreshHome();
+}
+
+// ══════════════════════════════════════════════
+//  SECTION DETAIL
+// ══════════════════════════════════════════════
+const SECTION_CONFIG = {
+  work:     { title: 'العمل والمهني',     icon: '💼', color: '#1B4F8A', bg: '#EBF1F9' },
+  health:   { title: 'الصحة والجسد',     icon: '🏃', color: '#1A6B3A', bg: '#EBF5EF' },
+  personal: { title: 'الشخصي والعلاقات', icon: '👤', color: '#7A3B8C', bg: '#F3EBF7' },
+  invest:   { title: 'الاستثمار والمالي', icon: '📈', color: '#B8621A', bg: '#FAF0E6' }
+};
+
+let currentSection = 'work';
+
+function showSection(sec) {
+  currentSection = sec;
+  const cfg = SECTION_CONFIG[sec];
+  document.getElementById('detail-title').textContent = cfg.title;
+  document.getElementById('detail-icon').textContent = cfg.icon;
+  renderSectionContent(sec);
+  showScreen('screen-section');
+  setActiveNav('');
+}
+
+function renderSectionContent(sec) {
+  const { week } = getCurrentWeek();
+  const data = week.sections[sec];
+  const cfg = SECTION_CONFIG[sec];
+  const cont = document.getElementById('section-content');
+
+  let html = '';
+
+  // Health checks special section
+  if (sec === 'health') {
+    html += `
+    <div class="subsection">
+      <div class="subsection-header"><span class="subsection-title">CHECK-INS الأسبوعية</span></div>
+      <div class="health-checks">
+        <div class="health-check-item" onclick="toggleHealthCheck('sleep')">
+          <div class="hci-left"><span class="hci-icon">😴</span><div><div class="hci-text">النوم منتظم</div><div class="hci-sub">بدون تذبذب كبير</div></div></div>
+          <div class="toggle ${data.checks?.sleep ? 'on' : ''}" id="hc-sleep"></div>
+        </div>
+        <div class="health-check-item" onclick="toggleHealthCheck('zone2')">
+          <div class="hci-left"><span class="hci-icon">🏃</span><div><div class="hci-text">Zone 2: +١٢٠ دقيقة</div><div class="hci-sub">الهدف الأسبوعي</div></div></div>
+          <div class="toggle ${data.checks?.zone2 ? 'on' : ''}" id="hc-zone2"></div>
+        </div>
+        <div class="health-check-item" onclick="toggleHealthCheck('fasting')">
+          <div class="hci-left"><span class="hci-icon">⏱</span><div><div class="hci-text">الصيام ١٦-١٨ ساعة</div><div class="hci-sub">ملتزم هذا الأسبوع</div></div></div>
+          <div class="toggle ${data.checks?.fasting ? 'on' : ''}" id="hc-fasting"></div>
+        </div>
+        <div class="health-check-item" onclick="toggleHealthCheck('caffeine')">
+          <div class="hci-left"><span class="hci-icon">☕</span><div><div class="hci-text">بدون كافيين بعد ٨م</div><div class="hci-sub">وبدون توباكو متأخر</div></div></div>
+          <div class="toggle ${data.checks?.caffeine ? 'on' : ''}" id="hc-caffeine"></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Done
+  html += `
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">✅ منجز هذا الأسبوع</span>
+      <button class="add-btn" onclick="openAddModal('done','${sec}')">+ إضافة</button>
+    </div>`;
+  if (data.done.length === 0) {
+    html += `<div class="empty-state"><div class="empty-icon">📝</div>لم تسجّل إنجازاً بعد</div>`;
+  } else {
+    data.done.forEach((item, i) => {
+      html += `
+      <div class="task-item" id="task-done-${i}">
+        <div class="task-check done" onclick="removeTask('done','${sec}',${i})">✓</div>
+        <div class="task-text">${escHtml(item)}</div>
+        <button class="task-delete" onclick="removeTask('done','${sec}',${i})">×</button>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // Pending
+  html += `
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">🔴 متأخر / يحتاج إنجاز</span>
+      <button class="add-btn" onclick="openAddModal('pending','${sec}')">+ إضافة</button>
+    </div>`;
+  if (data.pending.length === 0) {
+    html += `<div class="empty-state"><div class="empty-icon">✨</div>لا شيء متأخر</div>`;
+  } else {
+    data.pending.forEach((item, i) => {
+      html += `
+      <div class="task-item" id="task-pending-${i}">
+        <div class="task-check" onclick="completeTask('${sec}',${i})"></div>
+        <div class="task-text">${escHtml(item)}</div>
+        <button class="task-delete" onclick="removeTask('pending','${sec}',${i})">×</button>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // Follow-up
+  html += `
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">👁 يحتاج متابعة</span>
+      <button class="add-btn" onclick="openAddModal('followup','${sec}')">+ إضافة</button>
+    </div>`;
+  if (data.followup.length === 0) {
+    html += `<div class="empty-state" style="padding:12px;"><div class="empty-icon" style="font-size:20px;">—</div></div>`;
+  } else {
+    data.followup.forEach((item, i) => {
+      html += `
+      <div class="task-item">
+        <span style="font-size:16px;margin-top:2px;">👁</span>
+        <div class="task-text">${escHtml(item)}</div>
+        <button class="task-delete" onclick="removeTask('followup','${sec}',${i})">×</button>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // Goal
+  html += `
+  <div class="subsection">
+    <div class="subsection-header"><span class="subsection-title">🎯 هدف الأسبوع القادم</span></div>
+    <textarea class="goal-input" id="goal-input-${sec}" placeholder="اكتب هدفاً واحداً محدداً للأسبوع القادم..." rows="2" oninput="saveGoal('${sec}', this.value)">${escHtml(data.goal)}</textarea>
+  </div>`;
+
+  // Score
+  const scoreColors = { 1: '#C4373A', 2: '#B8621A', 3: '#7A7A1A', 4: '#1A6B3A', 5: '#1B4F8A' };
+  html += `
+  <div class="subsection">
+    <div class="subsection-header"><span class="subsection-title">التقييم الأسبوعي</span></div>
+    <div class="score-selector">`;
+  for (let i = 1; i <= 5; i++) {
+    const sel = data.score === i ? 'selected' : '';
+    const bg = data.score === i ? scoreColors[i] : '';
+    html += `<button class="score-btn ${sel}" style="${bg ? `background:${bg};border-color:${bg};color:white;` : ''}" onclick="setScore('${sec}',${i})">${toArabic(i)}</button>`;
+  }
+  html += `</div></div>`;
+
+  cont.innerHTML = html;
+}
+
+function toggleHealthCheck(key) {
+  const { state, week, key: wkey } = getCurrentWeek();
+  if (!week.sections.health.checks) week.sections.health.checks = {};
+  week.sections.health.checks[key] = !week.sections.health.checks[key];
+  state[wkey] = week;
+  saveState(state);
+  const el = document.getElementById(`hc-${key}`);
+  if (el) el.classList.toggle('on', week.sections.health.checks[key]);
+}
+
+function setScore(sec, val) {
+  const { state, week, key } = getCurrentWeek();
+  week.sections[sec].score = val;
+  state[key] = week;
+  saveState(state);
+  renderSectionContent(sec);
+  refreshHome();
+}
+
+function saveGoal(sec, val) {
+  const { state, week, key } = getCurrentWeek();
+  week.sections[sec].goal = val;
+  state[key] = week;
+  saveState(state);
+}
+
+function completeTask(sec, idx) {
+  const { state, week, key } = getCurrentWeek();
+  const item = week.sections[sec].pending.splice(idx, 1)[0];
+  week.sections[sec].done.push(item);
+  state[key] = week;
+  saveState(state);
+  renderSectionContent(sec);
+  refreshHome();
+}
+
+function removeTask(type, sec, idx) {
+  const { state, week, key } = getCurrentWeek();
+  week.sections[sec][type].splice(idx, 1);
+  state[key] = week;
+  saveState(state);
+  renderSectionContent(sec);
+  refreshHome();
+}
+
+// ══════════════════════════════════════════════
+//  MODAL / QUICK CAPTURE
+// ══════════════════════════════════════════════
+let modalMode = { type: 'done', section: 'work', context: 'capture' };
+
+function openAddModal(type, sec) {
+  modalMode = { type, section: sec, context: 'section' };
+  const titles = { done: '+ إضافة إنجاز', pending: '+ إضافة مهمة متأخرة', followup: '+ إضافة متابعة' };
+  document.getElementById('modal-title').textContent = titles[type];
+  document.getElementById('modal-input').value = '';
+  // Pre-select type
+  document.querySelectorAll('#modal-types .type-btn').forEach(b => {
+    b.classList.toggle('selected', b.getAttribute('onclick').includes(`'${type}'`));
+  });
+  document.querySelectorAll('#modal-sections .type-btn').forEach(b => {
+    b.classList.toggle('selected', b.getAttribute('onclick').includes(`'${sec}'`));
+  });
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('modal-input').focus(), 300);
+}
+
+function openCapture() {
+  modalMode = { type: 'done', section: 'work', context: 'capture' };
+  document.getElementById('modal-title').textContent = '⚡ إضافة سريعة';
+  document.getElementById('modal-input').value = '';
+  document.querySelectorAll('#modal-types .type-btn').forEach((b,i) => b.classList.toggle('selected', i===0));
+  document.querySelectorAll('#modal-sections .type-btn').forEach((b,i) => b.classList.toggle('selected', i===0));
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('modal-input').focus(), 300);
+}
+
+function selectType(btn, type) {
+  modalMode.type = type;
+  btn.closest('.modal-type-row').querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function selectSection(btn, sec) {
+  modalMode.section = sec;
+  btn.closest('.modal-type-row').querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function submitCapture() {
+  const val = document.getElementById('modal-input').value.trim();
+  if (!val) return;
+  const { state, week, key } = getCurrentWeek();
+  week.sections[modalMode.section][modalMode.type].push(val);
+  state[key] = week;
+  saveState(state);
+  closeModal();
+  if (currentSection === modalMode.section && document.getElementById('screen-section').classList.contains('active')) {
+    renderSectionContent(currentSection);
+  }
+  refreshHome();
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+// ══════════════════════════════════════════════
+//  REVIEW SESSION (7 questions)
+// ══════════════════════════════════════════════
+const REVIEW_QUESTIONS = [
+  {
+    id: 'energy', type: 'scale10',
+    question: 'طاقتك الآن من ١ إلى ١٠؟',
+    hint: 'صادق مع نفسك. هذا يحدد عمق الجلسة.',
+    key: 'energy'
+  },
+  {
+    id: 'visible_value', type: 'textarea',
+    question: 'ما القيمة المرئية التي أضفتها هذا الأسبوع؟',
+    hint: 'ليس ما خططت — ما فعلته فعلاً وأثّر على المنظمة أو الفريق.',
+    placeholder: 'مثال: قدمت تقرير الأداء للقيادة وتمت الموافقة على توصياتي...'
+  },
+  {
+    id: 'step_forward', type: 'textarea',
+    question: 'أين تقدمت وأخذت خطوة للأمام هذا الأسبوع؟',
+    hint: 'لحظة تجاوزت فيها حدودك المعتادة — مهنياً أو شخصياً.',
+    placeholder: 'مثال: طلبت مسؤولية جديدة بدل انتظار التكليف...'
+  },
+  {
+    id: 'hold_back', type: 'textarea',
+    question: 'أين تراجعت وكان بإمكانك المضي؟',
+    hint: 'سؤال الكوتش الأهم. الإجابة الصادقة هنا تساوي أكثر من أي تخطيط.',
+    placeholder: 'كن صريحاً مع نفسك...'
+  },
+  {
+    id: 'triangle', type: 'triangle',
+    question: 'هل كنت في Drama Triangle هذا الأسبوع؟',
+    hint: 'Victim: "ما أحد يقدّرني" | Rescuer: أخذت مهام الآخرين | Persecutor: حكمت بقسوة'
+  },
+  {
+    id: 'energy_audit', type: 'textarea',
+    question: 'من شحن طاقتك هذا الأسبوع؟ ومن استنزفها؟',
+    hint: 'الإجابة تحدد من تزيد وقتك معه، ومن تحمي طاقتك منه.',
+    placeholder: 'شحن: ... | استنزف: ...'
+  },
+  {
+    id: 'week_win', type: 'textarea',
+    question: 'الشيء الواحد الذي يجعل هذا الأسبوع ناجحاً — هل حققته؟',
+    hint: 'جملة واحدة تكتبها لنفسك: "هذا الأسبوع أنا أختار أن..."',
+    placeholder: 'هذا الأسبوع أنا أختار أن...'
+  }
+];
+
+let reviewStep = 0;
+let reviewAnswers = {};
+
+function startReview() {
+  reviewStep = 0;
+  reviewAnswers = {};
+  document.getElementById('review-week-label').textContent = getWeekLabel();
+  showScreen('screen-review');
+  setActiveNav('nav-review');
+  renderReviewStep();
+}
+
+function renderReviewStep() {
+  const q = REVIEW_QUESTIONS[reviewStep];
+  const total = REVIEW_QUESTIONS.length;
+
+  // Progress
+  let prog = '';
+  for (let i = 0; i < total; i++) {
+    prog += `<div class="progress-dot ${i < reviewStep ? 'done' : ''}"></div>`;
+  }
+  document.getElementById('review-progress').innerHTML = prog;
+
+  // Prev button
+  document.getElementById('btn-prev').style.display = reviewStep === 0 ? 'none' : 'block';
+
+  // Next button label
+  document.getElementById('btn-next').textContent = reviewStep === total - 1 ? 'إنهاء الجلسة ✓' : 'التالي ›';
+
+  // Card
+  let inner = '';
+  const saved = reviewAnswers[q.id] || '';
+
+  inner += `<div class="question-num">السؤال ${toArabic(reviewStep + 1)} من ${toArabic(total)}</div>`;
+  inner += `<div class="question-text">${q.question}</div>`;
+  inner += `<div class="question-hint">${q.hint}</div>`;
+
+  if (q.type === 'scale10') {
+    let btns = '';
+    for (let i = 1; i <= 10; i++) {
+      btns += `<button class="scale-btn ${saved == i ? 'selected' : ''}" onclick="setReviewAnswer('${q.id}', ${i}); this.closest('.scale-row').querySelectorAll('.scale-btn').forEach(b=>b.classList.remove('selected')); this.classList.add('selected')">${toArabic(i)}</button>`;
+    }
+    inner += `<div class="scale-row">${btns}</div>`;
+  } else if (q.type === 'textarea') {
+    inner += `<textarea class="review-textarea" placeholder="${q.placeholder || ''}" oninput="setReviewAnswer('${q.id}', this.value)">${escHtml(saved)}</textarea>`;
+  } else if (q.type === 'triangle') {
+    const opts = [
+      { val: 'no', label: '✅ لا، لم أكن في Triangle' },
+      { val: 'victim', label: '😔 Victim — شعرت أن أحداً لا يقدّر جهودي' },
+      { val: 'rescuer', label: '🤝 Rescuer — أخذت مهام الآخرين على نفسي' },
+      { val: 'persecutor', label: '⚠️ Persecutor — حكمت بقسوة على نفسي أو الآخرين' }
+    ];
+    inner += `<div class="triangle-options">`;
+    opts.forEach(o => {
+      inner += `<button class="triangle-opt ${saved === o.val ? 'selected' : ''}" onclick="setReviewAnswer('${q.id}', '${o.val}'); this.closest('.triangle-options').querySelectorAll('.triangle-opt').forEach(b=>b.classList.remove('selected')); this.classList.add('selected')">${o.label}</button>`;
+    });
+    inner += `</div>`;
+  }
+
+  document.getElementById('review-card').innerHTML = `<div class="review-question-card">${inner}</div>`;
+}
+
+function setReviewAnswer(id, val) { reviewAnswers[id] = val; }
+
+function reviewNext() {
+  if (reviewStep < REVIEW_QUESTIONS.length - 1) {
+    reviewStep++;
+    renderReviewStep();
+  } else {
+    finishReview();
+  }
+}
+function reviewPrev() {
+  if (reviewStep > 0) { reviewStep--; renderReviewStep(); }
+}
+
+function finishReview() {
+  const { state, week, key } = getCurrentWeek();
+  week.review = { ...reviewAnswers, completedAt: new Date().toISOString() };
+  week.completedAt = new Date().toISOString();
+  if (week.energy === 0 && reviewAnswers.energy) week.energy = Math.ceil(parseInt(reviewAnswers.energy) / 2);
+
+  // Update streak
+  state._streak = (state._streak || 0) + 1;
+  state._lastReview = key;
+  state[key] = week;
+  saveState(state);
+  showSummary(week);
+}
+
+// ══════════════════════════════════════════════
+//  SUMMARY
+// ══════════════════════════════════════════════
+function showSummary(week) {
+  showScreen('screen-summary');
+  setActiveNav('');
+  const secs = ['work','health','personal','invest'];
+  const totalDone = secs.reduce((a, s) => a + week.sections[s].done.length, 0);
+  const totalPending = secs.reduce((a, s) => a + week.sections[s].pending.length, 0);
+  const avgScore = secs.reduce((a, s) => a + (week.sections[s].score || 0), 0) / 4;
+
+  const emojis = ['', '😓', '😐', '🙂', '💪', '🚀'];
+  const scoreInt = Math.round(avgScore);
+
+  let html = `
+  <div class="summary-header">
+    <div class="emoji">${emojis[scoreInt] || '✅'}</div>
+    <h2>جلسة مكتملة</h2>
+    <p>${getWeekLabel()}</p>
+  </div>
+
+  <div class="scores-grid">
+    <div class="score-card">
+      <span class="sc-icon">💼</span>
+      <span class="sc-label">العمل</span>
+      <span class="sc-score" style="color:var(--accent-work)">${week.sections.work.score ? toArabic(week.sections.work.score)+'/٥' : '—'}</span>
+    </div>
+    <div class="score-card">
+      <span class="sc-icon">🏃</span>
+      <span class="sc-label">الصحة</span>
+      <span class="sc-score" style="color:var(--accent-health)">${week.sections.health.score ? toArabic(week.sections.health.score)+'/٥' : '—'}</span>
+    </div>
+    <div class="score-card">
+      <span class="sc-icon">👤</span>
+      <span class="sc-label">الشخصي</span>
+      <span class="sc-score" style="color:var(--accent-personal)">${week.sections.personal.score ? toArabic(week.sections.personal.score)+'/٥' : '—'}</span>
+    </div>
+    <div class="score-card">
+      <span class="sc-icon">📈</span>
+      <span class="sc-label">الاستثمار</span>
+      <span class="sc-score" style="color:var(--accent-invest)">${week.sections.invest.score ? toArabic(week.sections.invest.score)+'/٥' : '—'}</span>
+    </div>
+  </div>
+
+  <div class="summary-insight">
+    <div class="ins-label">📊 الأسبوع بالأرقام</div>
+    <div class="ins-text">
+      ✅ ${toArabic(totalDone)} إنجاز مسجّل<br>
+      🔴 ${toArabic(totalPending)} مهمة متأخرة للأسبوع القادم<br>
+      🔥 ${toArabic((loadState()._streak || 0))} أسبوع متواصل
+    </div>
+  </div>`;
+
+  if (week.review?.visible_value) {
+    html += `
+    <div class="summary-insight">
+      <div class="ins-label">⚡ القيمة المرئية هذا الأسبوع</div>
+      <div class="ins-text">${escHtml(week.review.visible_value)}</div>
+    </div>`;
+  }
+  if (week.review?.hold_back) {
+    html += `
+    <div class="summary-insight">
+      <div class="ins-label">🔍 نقطة التراجع — للأسبوع القادم</div>
+      <div class="ins-text">${escHtml(week.review.hold_back)}</div>
+    </div>`;
+  }
+  if (week.review?.week_win) {
+    html += `
+    <div class="summary-insight">
+      <div class="ins-label">🎯 قرار الأسبوع</div>
+      <div class="ins-text">${escHtml(week.review.week_win)}</div>
+    </div>`;
+  }
+
+  html += `
+  <div style="height:12px;"></div>
+  <button class="export-btn" onclick="exportData()">⬆️ تصدير JSON</button>
+  <button class="done-btn" onclick="showScreen('screen-home');setActiveNav('nav-home')">العودة للرئيسية ✓</button>
+  <div style="height:16px;"></div>`;
+
+  document.getElementById('summary-content').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════
+function renderHistory() {
+  const state = loadState();
+  const weeks = Object.entries(state)
+    .filter(([k]) => k.startsWith('20') && k.includes('-W'))
+    .sort((a, b) => b[0].localeCompare(a[0]));
+
+  const cont = document.getElementById('history-content');
+  if (weeks.length === 0) {
+    cont.innerHTML = `<div class="empty-state" style="padding:60px 20px;"><div class="empty-icon">📅</div>لا يوجد سجل بعد<br><small>أكمل مراجعتك الأولى لتبدأ السجل</small></div>`;
+    return;
+  }
+
+  const scoreColors = { 1: '#C4373A', 2: '#B8621A', 3: '#7A7A1A', 4: '#1A6B3A', 5: '#1B4F8A' };
+  let html = '';
+  weeks.forEach(([key, week]) => {
+    const secs = ['work','health','personal','invest'];
+    const scores = secs.map(s => week.sections?.[s]?.score || 0);
+    const done = secs.reduce((a, s) => a + (week.sections?.[s]?.done?.length || 0), 0);
+
+    html += `<div class="history-week">
+      <div class="hw-header">
+        <span class="hw-date">${key}</span>
+        <span class="hw-energy">طاقة: ${week.energy ? toArabic(week.energy)+'/٥' : '—'}</span>
+      </div>
+      <div class="hw-scores">`;
+    const icons = ['💼','🏃','👤','📈'];
+    secs.forEach((s, i) => {
+      const sc = scores[i];
+      if (sc > 0) {
+        html += `<span class="hw-score-chip" style="background:${scoreColors[sc]}20;color:${scoreColors[sc]}">${icons[i]} ${toArabic(sc)}/٥</span>`;
+      }
+    });
+    html += `</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">${toArabic(done)} إنجاز · ${week.completedAt ? '✅ مكتمل' : '⏳ جارٍ'}</div>
+    </div>`;
+  });
+
+  cont.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+//  EXPORT / IMPORT
+// ══════════════════════════════════════════════
+function exportData() {
+  const state = loadState();
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rayan_weekly_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════
+//  NOTIFICATIONS (best effort)
+// ══════════════════════════════════════════════
+function scheduleNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SERVICE WORKER (offline)
+// ══════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'rayan-weekly-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  scheduleNotifications();
+  refreshHome();
+});
+
+// Keyboard submit in modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('modal').classList.contains('open')) {
+    submitCapture();
+  }
+});
+</script>
+</body>
+</html>
