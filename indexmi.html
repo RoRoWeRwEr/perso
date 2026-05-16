@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="مراجعة ريان">
+<meta name="theme-color" content="#F8F6F1">
+<title>مراجعة الأسبوع</title>
+<link rel="apple-touch-icon" id="app-icon-link" href="">
+<link rel="manifest" id="app-manifest" href="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F8F6F1; --bg2:#EFECEA; --bg3:#E5E2DC;
+  --surface:#FFFFFF; --border:#D8D4CC;
+  --text-primary:#1A1714; --text-secondary:#5C574F; --text-muted:#9C9690;
+  --work:#1B4F8A; --health:#1A6B3A; --personal:#7A3B8C;
+  --invest:#B8621A; --travel:#0E7490; --family:#BE185D; --growth:#4F46E5;
+  --main:#1B4F8A; --success:#1A6B3A; --warning:#B8621A; --danger:#C4373A;
+  --shadow:0 2px 12px rgba(26,23,20,0.08);
+  --radius:16px; --radius-sm:10px;
+  --font:'IBM Plex Sans Arabic',sans-serif; --mono:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden}
+.screen{display:none;min-height:100vh;padding-bottom:88px}
+.screen.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes checkPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+
+/* Header */
+.app-header{background:var(--surface);padding:14px 16px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.app-header h1{font-size:17px;font-weight:700}
+.week-label{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-top:2px}
+.header-actions{display:flex;gap:6px}
+.icon-btn{width:34px;height:34px;border-radius:50%;background:var(--bg2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s}
+.icon-btn:active{transform:scale(.9);background:var(--bg3)}
+
+/* Bottom Nav */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:200}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 4px;cursor:pointer;border:none;background:none;font-family:var(--font);transition:all .15s;position:relative}
+.nav-item .nav-icon{font-size:20px}
+.nav-item .nav-label{font-size:10px;color:var(--text-muted);font-weight:500}
+.nav-item.active .nav-label{color:var(--main)}
+.nav-item.active .nav-icon{transform:scale(1.1)}
+.nav-item:active{transform:scale(.95)}
+
+/* Home */
+.home-content{padding:14px}
+.energy-card{background:var(--surface);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.card-label{font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
+.energy-dots{display:flex;gap:7px;align-items:center}
+.energy-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;transition:all .2s;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-muted)}
+.energy-dot.active{background:var(--main);border-color:var(--main);color:white;transform:scale(1.15)}
+.energy-text{font-size:12px;color:var(--text-secondary);font-weight:500;margin-right:6px}
+
+.stats-row{display:flex;gap:8px;margin-bottom:12px}
+.stat-card{flex:1;background:var(--surface);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border);text-align:center}
+.stat-num{font-family:var(--mono);font-size:24px;font-weight:500;line-height:1}
+.stat-num.danger{color:var(--danger)}
+.stat-num.success{color:var(--success)}
+.stat-num.warn{color:var(--warning)}
+.stat-label{font-size:10px;color:var(--text-muted);margin-top:3px}
+
+/* Section Cards — compact list */
+.sections-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.section-card{background:var(--surface);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between}
+.section-card:active{transform:scale(.98);box-shadow:none}
+.sec-left{display:flex;align-items:center;gap:11px}
+.sec-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sec-name{font-size:14px;font-weight:600}
+.sec-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.sec-right{display:flex;align-items:center;gap:8px}
+.score-pill{font-family:var(--mono);font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px}
+.pending-badge{background:var(--danger);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:var(--mono)}
+.chevron{font-size:14px;color:var(--text-muted)}
+
+/* Colors per section */
+.s-work .sec-icon{background:#EBF1F9} .s-work .score-pill{background:#EBF1F9;color:var(--work)}
+.s-health .sec-icon{background:#EBF5EF} .s-health .score-pill{background:#EBF5EF;color:var(--health)}
+.s-personal .sec-icon{background:#F3EBF7} .s-personal .score-pill{background:#F3EBF7;color:var(--personal)}
+.s-invest .sec-icon{background:#FAF0E6} .s-invest .score-pill{background:#FAF0E6;color:var(--invest)}
+.s-travel .sec-icon{background:#E0F2FE} .s-travel .score-pill{background:#E0F2FE;color:var(--travel)}
+.s-family .sec-icon{background:#FCE7F3} .s-family .score-pill{background:#FCE7F3;color:var(--family)}
+.s-growth .sec-icon{background:#EEF2FF} .s-growth .score-pill{background:#EEF2FF;color:var(--growth)}
+
+.review-btn{width:100%;padding:15px;background:var(--main);color:white;border:none;border-radius:var(--radius);font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(27,79,138,.3);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.review-btn:active{transform:scale(.98);box-shadow:none}
+.streak-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px}
+.streak-num{font-family:var(--mono);font-size:26px;font-weight:500;color:var(--warning)}
+.streak-lbl{font-size:11px;color:var(--text-muted);margin-top:1px}
+
+/* FAB */
+.fab{position:fixed;bottom:90px;left:18px;width:50px;height:50px;border-radius:50%;background:var(--main);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(27,79,138,.4);display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:150}
+.fab:active{transform:scale(.9)}
+
+/* Section Detail */
+.section-detail{padding:14px}
+.back-btn{width:34px;height:34px;border-radius:50%;background:var(--bg2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .15s;flex-shrink:0}
+.back-btn:active{transform:scale(.9)}
+
+.subsection{margin-bottom:18px}
+.sub-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sub-title{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px}
+.add-btn{font-size:12px;color:var(--main);font-weight:600;border:none;background:none;cursor:pointer;padding:3px 8px;border-radius:6px;font-family:var(--font)}
+.add-btn:active{background:var(--bg2)}
+
+/* Tasks */
+.task-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px;animation:slideIn .2s ease}
+.task-item.done-item{opacity:.55}
+.task-item.done-item .task-text{text-decoration:line-through;color:var(--text-muted)}
+.task-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center;background:var(--bg2);margin-top:1px}
+.task-check.checked{background:var(--success);border-color:var(--success);color:white;font-size:11px;animation:checkPop .3s ease}
+.task-text{font-size:14px;color:var(--text-primary);line-height:1.5;flex:1}
+.task-meta{font-size:10px;color:var(--text-muted);margin-top:2px}
+.task-del{font-size:15px;color:var(--text-muted);cursor:pointer;border:none;background:none;padding:0 3px;flex-shrink:0;transition:color .15s}
+.task-del:active{color:var(--danger)}
+
+/* Sub-items (travel nested) */
+.sub-task{margin-right:28px;margin-bottom:6px;background:var(--bg2);border:1px solid var(--bg3);border-radius:8px;padding:9px 12px;display:flex;align-items:flex-start;gap:9px}
+.sub-task .task-check{width:18px;height:18px;font-size:10px}
+.sub-task .task-text{font-size:13px}
+
+/* Score selector */
+.score-row{display:flex;gap:7px;margin-top:4px}
+.score-btn{width:38px;height:38px;border-radius:9px;border:2px solid var(--border);background:var(--bg2);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.score-btn.sel{color:white;border-color:transparent;transform:scale(1.08)}
+.score-btn:active{transform:scale(.9)}
+
+.goal-area{width:100%;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;color:var(--text-primary);resize:none;outline:none;direction:rtl;transition:border-color .15s}
+.goal-area:focus{border-color:var(--main)}
+.goal-area::placeholder{color:var(--text-muted)}
+
+/* Health toggles */
+.toggle-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:7px;transition:all .15s}
+.toggle-item:active{transform:scale(.98)}
+.ti-left{display:flex;align-items:center;gap:9px}
+.ti-icon{font-size:17px}
+.ti-name{font-size:14px;font-weight:500}
+.ti-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
+.toggle{width:42px;height:23px;border-radius:12px;background:var(--bg3);position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--success)}
+.toggle::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:white;top:2px;right:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(-19px)}
+
+/* Growth tracks */
+.growth-track{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px;margin-bottom:8px}
+.gt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.gt-name{font-size:14px;font-weight:600}
+.gt-status{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600}
+.status-active{background:#EEF2FF;color:var(--growth)}
+.status-waiting{background:#FEF3E2;color:var(--warning)}
+.status-planned{background:var(--bg2);color:var(--text-muted)}
+.gt-sub{font-size:12px;color:var(--text-muted);line-height:1.4}
+.gt-next{font-size:12px;color:var(--text-secondary);margin-top:6px;font-weight:500}
+
+/* Review session */
+.review-session{padding:18px 14px}
+.prog-bar{display:flex;gap:3px;margin-bottom:22px}
+.prog-dot{flex:1;height:3px;border-radius:2px;background:var(--bg3);transition:background .3s}
+.prog-dot.done{background:var(--main)}
+.q-card{background:var(--surface);border-radius:var(--radius);padding:22px;margin-bottom:18px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.q-num{font-size:10px;color:var(--text-muted);font-family:var(--mono);margin-bottom:6px}
+.q-text{font-size:16px;font-weight:700;color:var(--text-primary);line-height:1.5;margin-bottom:8px}
+.q-hint{font-size:12px;color:var(--text-muted);line-height:1.5}
+.scale-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:14px}
+.scale-btn{width:42px;height:42px;border-radius:9px;border:2px solid var(--border);background:var(--bg2);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--mono)}
+.scale-btn.sel{background:var(--main);border-color:var(--main);color:white;transform:scale(1.08)}
+.scale-btn:active{transform:scale(.9)}
+.review-ta{width:100%;min-height:90px;padding:13px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;color:var(--text-primary);resize:none;outline:none;line-height:1.6;direction:rtl;transition:all .15s;margin-top:12px}
+.review-ta:focus{border-color:var(--main);background:var(--surface)}
+.review-ta::placeholder{color:var(--text-muted)}
+.tri-opts{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.tri-opt{padding:11px 14px;border-radius:var(--radius-sm);border:2px solid var(--border);background:var(--surface);font-size:13px;cursor:pointer;transition:all .15s;font-family:var(--font);color:var(--text-primary);text-align:right}
+.tri-opt.sel{border-color:var(--main);background:#EBF1F9}
+.tri-opt:active{transform:scale(.98)}
+.nav-btns{display:flex;gap:8px}
+.btn-prev{padding:13px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;color:var(--text-secondary);transition:all .15s}
+.btn-next{flex:1;padding:13px;background:var(--main);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-prev:active,.btn-next:active{transform:scale(.97)}
+
+/* Summary */
+.summary-content{padding:14px}
+.sum-header{text-align:center;padding:18px 0 20px}
+.sum-emoji{font-size:46px;margin-bottom:6px}
+.sum-header h2{font-size:21px;font-weight:700}
+.sum-header p{font-size:13px;color:var(--text-muted);margin-top:3px}
+.scores-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.sc-icon{font-size:20px}
+.sc-label{font-size:11px;color:var(--text-muted)}
+.sc-score{font-family:var(--mono);font-size:20px;font-weight:500}
+.sum-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
+.sum-block-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.sum-block-text{font-size:14px;color:var(--text-primary);line-height:1.6}
+.export-btn{width:100%;padding:13px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;color:var(--text-secondary);margin-bottom:8px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.export-btn:active{transform:scale(.98)}
+.done-btn{width:100%;padding:15px;background:var(--success);color:white;border:none;border-radius:var(--radius);font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(26,107,58,.3)}
+.done-btn:active{transform:scale(.98)}
+
+/* History */
+.history-content{padding:14px}
+.hw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:9px;cursor:pointer;transition:all .15s}
+.hw-card:active{transform:scale(.99)}
+.hw-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.hw-date{font-size:13px;font-weight:600}
+.hw-energy{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.hw-chips{display:flex;gap:6px;flex-wrap:wrap}
+.hw-chip{font-size:10px;padding:2px 8px;border-radius:20px;font-family:var(--mono);font-weight:600}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,.5);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{width:100%;max-width:430px;margin:0 auto;background:var(--surface);border-radius:20px 20px 0 0;padding:18px;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:34px;height:4px;background:var(--bg3);border-radius:2px;margin:0 auto 14px}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:12px}
+.modal-input{width:100%;padding:13px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:15px;color:var(--text-primary);outline:none;direction:rtl;margin-bottom:10px;transition:border-color .15s}
+.modal-input:focus{border-color:var(--main);background:var(--surface)}
+.chips-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.chip-btn{padding:6px 13px;border-radius:20px;border:2px solid var(--border);background:var(--bg2);font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s;color:var(--text-secondary)}
+.chip-btn.sel{background:var(--main);border-color:var(--main);color:white}
+.modal-submit{width:100%;padding:13px;background:var(--main);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s}
+.modal-submit:active{transform:scale(.98)}
+
+.empty-state{text-align:center;padding:20px;color:var(--text-muted);font-size:13px}
+.empty-icon{font-size:28px;margin-bottom:6px}
+.section-divider{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;padding:4px 0 8px;margin-top:4px}
+</style>
+
+<script>
+// Generate PWA icon as PNG via canvas — works on iOS Safari
+(function(){
+  try {
+    var c = document.createElement('canvas');
+    c.width = 512; c.height = 512;
+    var ctx = c.getContext('2d');
+
+    // Background — warm white
+    ctx.fillStyle = '#F4F1EC';
+    roundRect(ctx, 0, 0, 512, 512, 110);
+    ctx.fill();
+
+    // Subtle inner shadow ring
+    ctx.strokeStyle = '#E8E4DC';
+    ctx.lineWidth = 3;
+    roundRect(ctx, 6, 6, 500, 500, 106);
+    ctx.stroke();
+
+    var cx = 256, cy = 256;
+    // Four section colors
+    var colors = { top:'#1B4F8A', right:'#1A6B3A', bottom:'#7A3B8C', left:'#B8621A' };
+    var pts = {
+      top:   [cx,      cy-148],
+      right: [cx+110,  cy-18 ],
+      bottom:[cx,      cy+148],
+      left:  [cx-110,  cy-18 ]
+    };
+
+    // Draw filled quadrants with slight transparency
+    var quads = [
+      ['top','right','bottom'],
+      ['top','bottom','left']
+    ];
+
+    // Draw the diamond outline — thick, clean
+    ctx.beginPath();
+    ctx.moveTo(pts.top[0],    pts.top[1]);
+    ctx.lineTo(pts.right[0],  pts.right[1]);
+    ctx.lineTo(pts.bottom[0], pts.bottom[1]);
+    ctx.lineTo(pts.left[0],   pts.left[1]);
+    ctx.closePath();
+    ctx.strokeStyle = '#1B4F8A';
+    ctx.lineWidth = 22;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Four colored corner nodes
+    var nodes = [
+      {pt:pts.top,    col:'#1B4F8A'},
+      {pt:pts.right,  col:'#1A6B3A'},
+      {pt:pts.bottom, col:'#7A3B8C'},
+      {pt:pts.left,   col:'#B8621A'}
+    ];
+    nodes.forEach(function(n){
+      // Glow
+      ctx.beginPath();
+      ctx.arc(n.pt[0], n.pt[1], 26, 0, Math.PI*2);
+      ctx.fillStyle = n.col + '28';
+      ctx.fill();
+      // Dot
+      ctx.beginPath();
+      ctx.arc(n.pt[0], n.pt[1], 16, 0, Math.PI*2);
+      ctx.fillStyle = n.col;
+      ctx.fill();
+      // White inner
+      ctx.beginPath();
+      ctx.arc(n.pt[0], n.pt[1], 7, 0, Math.PI*2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+    });
+
+    // Center node
+    ctx.beginPath();
+    ctx.arc(cx, cy, 30, 0, Math.PI*2);
+    ctx.fillStyle = '#1B4F8A18';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, 14, 0, Math.PI*2);
+    ctx.fillStyle = '#1B4F8A';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, 6, 0, Math.PI*2);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+
+    var iconUrl = c.toDataURL('image/png');
+
+    // Set apple-touch-icon
+    var link = document.getElementById('app-icon-link');
+    if (link) link.href = iconUrl;
+
+    // Generate manifest dynamically
+    var manifest = {
+      name: 'مراجعة الأسبوع',
+      short_name: 'مراجعتي',
+      start_url: '.',
+      display: 'standalone',
+      background_color: '#F8F6F1',
+      theme_color: '#F8F6F1',
+      orientation: 'portrait',
+      icons: [
+        { src: iconUrl, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        { src: iconUrl, sizes: '192x192', type: 'image/png' }
+      ]
+    };
+    var blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+    var mLink = document.getElementById('app-manifest');
+    if (mLink) mLink.href = URL.createObjectURL(blob);
+
+  } catch(e) { console.log('Icon gen failed:', e); }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+  }
+})();
+</script>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="app-header">
+    <div>
+      <h1>مراجعة الأسبوع</h1>
+      <div class="week-label" id="week-label">—</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showScreen('screen-history');setNav('nav-hist')" title="السجل">📊</button>
+      <button class="icon-btn" onclick="triggerImport()" title="استيراد">⬇️</button>
+      <button class="icon-btn" onclick="exportData()" title="تصدير">⬆️</button>
+    </div>
+  </div>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+
+  <div class="home-content" id="home-content">
+    <!-- energy -->
+    <div class="energy-card">
+      <div class="card-label">ENERGY LEVEL</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="energy-dots" id="energy-dots">
+          <div class="energy-dot" onclick="setEnergy(1)">١</div>
+          <div class="energy-dot" onclick="setEnergy(2)">٢</div>
+          <div class="energy-dot" onclick="setEnergy(3)">٣</div>
+          <div class="energy-dot" onclick="setEnergy(4)">٤</div>
+          <div class="energy-dot" onclick="setEnergy(5)">٥</div>
+        </div>
+        <span class="energy-text" id="energy-text">اختر</span>
+      </div>
+    </div>
+
+    <!-- stats -->
+    <div class="stats-row">
+      <div class="stat-card" onclick="showAllTasks('pending')" style="cursor:pointer"><div class="stat-num danger" id="st-pending">٠</div><div class="stat-label">متأخر ↗</div></div>
+      <div class="stat-card" onclick="showAllTasks('done')" style="cursor:pointer"><div class="stat-num success" id="st-done">٠</div><div class="stat-label">منجز ↗</div></div>
+      <div class="stat-card"><div class="stat-num warn" id="st-streak">٠</div><div class="stat-label">🔥 أسابيع</div></div>
+    </div>
+
+    <!-- sections -->
+    <div class="sections-list" id="sections-list"></div>
+
+    <button class="review-btn" onclick="startReview()">▶ ابدأ مراجعة الأسبوع</button>
+
+    <div class="streak-row">
+      <div><div class="streak-num" id="streak-big">٠</div><div class="streak-lbl">أسبوع متواصل</div></div>
+      <span style="font-size:30px">🔥</span>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION DETAIL -->
+<div id="screen-section" class="screen">
+  <div class="app-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="back-btn" onclick="showScreen('screen-home');setNav('nav-home')">‹</button>
+      <div><h1 id="det-title">—</h1><div class="week-label" id="det-week">—</div></div>
+    </div>
+    <div class="header-actions">
+      <span id="det-icon" style="font-size:22px">—</span>
+    </div>
+  </div>
+  <div class="section-detail" id="det-content"></div>
+</div>
+
+<!-- REVIEW -->
+<div id="screen-review" class="screen">
+  <div class="app-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="back-btn" onclick="showScreen('screen-home');setNav('nav-home')">‹</button>
+      <div><h1>جلسة المراجعة</h1><div class="week-label" id="rev-week">—</div></div>
+    </div>
+  </div>
+  <div class="review-session">
+    <div class="prog-bar" id="prog-bar"></div>
+    <div id="q-card"></div>
+    <div class="nav-btns">
+      <button class="btn-prev" id="btn-prev" onclick="revPrev()">السابق</button>
+      <button class="btn-next" id="btn-next" onclick="revNextOrFinish()">التالي ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div id="screen-summary" class="screen">
+  <div class="app-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="back-btn" onclick="showScreen('screen-home');setNav('nav-home')">‹</button>
+      <h1>ملخص الأسبوع</h1>
+    </div>
+    <div class="header-actions"><button class="icon-btn" onclick="exportData()">⬆️</button></div>
+  </div>
+  <div class="summary-content" id="sum-content"></div>
+</div>
+
+<!-- HISTORY -->
+<div id="screen-history" class="screen">
+  <div class="app-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="back-btn" onclick="showScreen('screen-home');setNav('nav-home')">‹</button>
+      <h1>السجل الأسبوعي</h1>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="resetCurrentWeek()" title="مسح الأسبوع الحالي" style="font-size:13px;color:var(--danger)">🗑</button>
+    </div>
+  </div>
+  <div class="history-content" id="hist-content"></div>
+</div>
+
+<!-- NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showScreen('screen-home');setNav('nav-home')">
+    <span class="nav-icon">🏠</span><span class="nav-label">الرئيسية</span>
+  </button>
+  <button class="nav-item" id="nav-rev" onclick="startReview();setNav('nav-rev')">
+    <span class="nav-icon" id="nav-rev-icon">✍️</span><span class="nav-label" id="nav-rev-label">مراجعة</span>
+  </button>
+  <button class="nav-item" id="nav-hist" onclick="showScreen('screen-history');setNav('nav-hist')">
+    <span class="nav-icon">📊</span><span class="nav-label">السجل</span>
+  </button>
+</nav>
+
+<button class="fab" onclick="openCapture()">＋</button>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">إضافة</div>
+    <input class="modal-input" id="modal-input" placeholder="اكتب هنا..."/>
+    <div class="card-label" style="margin-bottom:6px">النوع</div>
+    <div class="chips-row" id="type-chips">
+      <button class="chip-btn sel" onclick="pickChip(this,'type','done')">✅ منجز</button>
+      <button class="chip-btn" onclick="pickChip(this,'type','pending')">🔴 متأخر</button>
+      <button class="chip-btn" onclick="pickChip(this,'type','followup')">👁 متابعة</button>
+    </div>
+    <div class="card-label" style="margin-bottom:6px">القسم</div>
+    <div class="chips-row" id="sec-chips"></div>
+    <button class="modal-submit" onclick="submitModal()">حفظ</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG — all sections
+// ═══════════════════════════════════════════
+const SECTIONS = [
+  { id:'work',     label:'العمل والمهني',      icon:'💼', cls:'s-work',     color:'#1B4F8A', reviewOnly:true  },
+  { id:'health',   label:'الصحة والجسد',       icon:'🏃', cls:'s-health',   color:'#1A6B3A', reviewOnly:true  },
+  { id:'personal', label:'الشخصي والعلاقات',   icon:'👤', cls:'s-personal', color:'#7A3B8C', reviewOnly:false },
+  { id:'invest',   label:'الاستثمار والمالي',  icon:'📈', cls:'s-invest',   color:'#B8621A', reviewOnly:false },
+  { id:'travel',   label:'السفر والرحلات',     icon:'🧳', cls:'s-travel',   color:'#0E7490', reviewOnly:false },
+  { id:'family',   label:'العائلة والمنزل',    icon:'👨‍👩‍👧‍👦', cls:'s-family',   color:'#BE185D', reviewOnly:false },
+  { id:'growth',   label:'النمو الشخصي',       icon:'📚', cls:'s-growth',   color:'#4F46E5', reviewOnly:false }
+];
+
+const SCORE_COLORS = {1:'#C4373A',2:'#B8621A',3:'#7A7A1A',4:'#1A6B3A',5:'#1B4F8A'};
+const AR = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+const toAr = n => String(n).replace(/\d/g,d=>AR[d]);
+
+// ═══════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════
+const SK = 'rayan_v3';
+const load = () => { try{return JSON.parse(localStorage.getItem(SK))||{}}catch{return{}} };
+const save = s => localStorage.setItem(SK, JSON.stringify(s));
+
+function weekKey() {
+  const d=new Date(), jan1=new Date(d.getFullYear(),0,1);
+  const w=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`;
+}
+
+function weekLabel() {
+  const d=new Date(), jan1=new Date(d.getFullYear(),0,1);
+  const w=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  const mo=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  return `الأسبوع ${toAr(w)} — ${mo[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// Format any ISO date string as readable Gregorian
+function fmtDate(iso, opts) {
+  if(!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-GB', opts||{day:'numeric',month:'short',year:'numeric'});
+}
+function fmtDateAr(iso) {
+  if(!iso) return '—';
+  const d=new Date(iso);
+  const mo=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  return `${days[d.getDay()]} ${d.getDate()} ${mo[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function getWeek() {
+  const state=load(), key=weekKey();
+  if (!state[key]) {
+    const secs={};
+    SECTIONS.forEach(s => {
+      secs[s.id]={ score:0, goal:'', done:[], pending:[], followup:[] };
+      if (s.id==='health') secs[s.id].checks={sleep:false,zone2:false,fasting:false,caffeine:false};
+      if (s.id==='growth') secs[s.id].tracks=[];
+    });
+    state[key]={ key, energy:0, sections:secs, review:{}, completedAt:null, createdAt:new Date().toISOString() };
+    save(state);
+  }
+  return {state, week:state[key], key};
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-home') refreshHome();
+  if(id==='screen-history') renderHistory();
+}
+function setNav(id) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════
+const E_LABELS=['','⚠️ منهك','متعب','عادي','جيد 👍','⚡ ممتاز'];
+
+function refreshHome() {
+  const {week}=getWeek();
+  document.getElementById('week-label').textContent=weekLabel();
+  document.getElementById('rev-week').textContent=weekLabel();
+  document.getElementById('det-week').textContent=weekLabel();
+
+  // energy
+  document.querySelectorAll('#energy-dots .energy-dot').forEach((d,i)=>{
+    d.classList.toggle('active',i+1===week.energy);
+  });
+  document.getElementById('energy-text').textContent=week.energy?E_LABELS[week.energy]:'اختر';
+
+  // stats
+  let pend=0,done=0;
+  SECTIONS.forEach(s=>{
+    pend+=week.sections[s.id]?.pending?.length||0;
+    done+=week.sections[s.id]?.done?.length||0;
+  });
+  document.getElementById('st-pending').textContent=toAr(pend);
+  document.getElementById('st-done').textContent=toAr(done);
+  const streak=load()._streak||0;
+  document.getElementById('st-streak').textContent=toAr(streak);
+  document.getElementById('streak-big').textContent=toAr(streak);
+
+  // section cards
+  const list=document.getElementById('sections-list');
+  list.innerHTML='';
+
+  // Group: Review-only first, then task sections
+  const reviewSecs = SECTIONS.filter(s=>s.reviewOnly);
+  const taskSecs   = SECTIONS.filter(s=>!s.reviewOnly);
+
+  const buildCard = s => {
+    const sec=week.sections[s.id];
+    const score=sec?.score||0;
+    const pCount=sec?.pending?.length||0;
+    const dCount=sec?.done?.length||0;
+    const total=pCount+(sec?.followup?.length||0)+dCount;
+    let sub = s.reviewOnly ? 'مراجعة أسبوعية فقط' : (total>0?`${toAr(dCount)} منجز · ${toAr(pCount)} متأخر`:'اضغط للمراجعة');
+    const card=document.createElement('div');
+    card.className=`section-card ${s.cls}`;
+    card.onclick=()=>showSection(s.id);
+    card.innerHTML=`
+      <div class="sec-left">
+        <div class="sec-icon">${s.icon}</div>
+        <div><div class="sec-name">${s.label}</div><div class="sec-sub">${sub}</div></div>
+      </div>
+      <div class="sec-right">
+        ${pCount>0?`<span class="pending-badge">${toAr(pCount)}</span>`:''}
+        <span class="score-pill" style="${score?`color:${SCORE_COLORS[score]};background:${SCORE_COLORS[score]}18`:''}">
+          ${score?toAr(score)+'/٥':'—/٥'}
+        </span>
+        <span class="chevron">›</span>
+      </div>`;
+    return card;
+  };
+
+  // divider helper
+  const divider=(txt)=>{const d=document.createElement('div');d.className='section-divider';d.textContent=txt;return d;};
+  list.appendChild(divider('مراجعة أسبوعية'));
+  reviewSecs.forEach(s=>list.appendChild(buildCard(s)));
+  list.appendChild(divider('المتابعة والإنجاز'));
+  taskSecs.forEach(s=>list.appendChild(buildCard(s)));
+
+  checkExportReminder();
+  // Review button status
+  const wk=getWeek().week;
+  const navIcon=document.getElementById('nav-rev-icon');
+  const navLbl=document.getElementById('nav-rev-label');
+  if(navIcon&&navLbl) {
+    if(wk.completedAt) { navIcon.textContent='✅'; navLbl.textContent='مكتملة'; }
+    else if(wk.reviewDraft&&Object.keys(wk.reviewDraft).length>0) { navIcon.textContent='⏸️'; navLbl.textContent='متابعة'; }
+    else { navIcon.textContent='✍️'; navLbl.textContent='مراجعة'; }
+  }
+}
+
+function setEnergy(v) {
+  const {state,week,key}=getWeek(); week.energy=v; state[key]=week; save(state); refreshHome();
+}
+
+// ═══════════════════════════════════════════
+// SECTION DETAIL
+// ═══════════════════════════════════════════
+let curSec='work';
+function showSection(id) {
+  curSec=id;
+  const s=SECTIONS.find(x=>x.id===id);
+  document.getElementById('det-title').textContent=s.label;
+  document.getElementById('det-icon').textContent=s.icon;
+  renderDetail(id);
+  showScreen('screen-section');
+  setNav('');
+}
+
+function renderDetail(id) {
+  const {week}=getWeek();
+  const sec=week.sections[id];
+  const s=SECTIONS.find(x=>x.id===id);
+  const cont=document.getElementById('det-content');
+  let h='';
+
+  // ── Health: toggles ──
+  if (id==='health') {
+    const checks=sec.checks||{};
+    const items=[
+      {k:'sleep',icon:'😴',name:'النوم منتظم',sub:'بدون تذبذب'},
+      {k:'zone2',icon:'🏃',name:'Zone 2: +١٢٠ دقيقة',sub:'الهدف الأسبوعي'},
+      {k:'fasting',icon:'⏱',name:'الصيام ١٦-١٨ ساعة',sub:'ملتزم هذا الأسبوع'},
+      {k:'caffeine',icon:'☕',name:'بدون كافيين بعد ٨م',sub:'وبدون توباكو متأخر'}
+    ];
+    h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">✅ CHECK-INS</span></div>`;
+    items.forEach(it=>{
+      h+=`<div class="toggle-item" onclick="toggleCheck('${it.k}')">
+        <div class="ti-left"><span class="ti-icon">${it.icon}</span><div><div class="ti-name">${it.name}</div><div class="ti-sub">${it.sub}</div></div></div>
+        <div class="toggle ${checks[it.k]?'on':''}" id="hc-${it.k}"></div>
+      </div>`;
+    });
+    h+=`</div>`;
+    // weekly note
+    h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">ملاحظة الأسبوع</span></div>
+      <textarea class="goal-area" rows="2" placeholder="كيف كانت صحتك هذا الأسبوع؟" oninput="saveGoal('${id}',this.value)">${esc(sec.goal)}</textarea></div>`;
+  }
+
+  // ── Growth: special tracks ──
+  else if (id==='growth') {
+    const tracks = sec.tracks || getDefaultTracks();
+    h+=`<div class="subsection">
+      <div class="sub-header"><span class="sub-title">المسارات النشطة</span><button class="add-btn" onclick="addTrack()">+ مسار</button></div>`;
+    tracks.forEach((t,i)=>{
+      const statusCls = t.status==='active'?'status-active':t.status==='waiting'?'status-waiting':'status-planned';
+      const statusLbl = t.status==='active'?'نشط':t.status==='waiting'?'انتظار':'مخطط';
+      h+=`<div class="growth-track">
+        <div class="gt-header">
+          <span class="gt-name">${esc(t.name)}</span>
+          <span class="gt-status ${statusCls}">${statusLbl}</span>
+        </div>
+        <div class="gt-sub">${esc(t.note||'')}</div>
+        ${t.next?`<div class="gt-next">الخطوة التالية: ${esc(t.next)}</div>`:''}
+      </div>`;
+    });
+    h+=`</div>`;
+    // weekly step
+    h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">🎯 خطوة هذا الأسبوع</span></div>
+      <textarea class="goal-area" rows="2" placeholder="ما الخطوة الواحدة للنمو هذا الأسبوع؟" oninput="saveGoal('${id}',this.value)">${esc(sec.goal)}</textarea></div>`;
+  }
+
+  // ── Work: review-only ──
+  else if (id==='work') {
+    h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">⚡ الإنجاز الأبرز</span></div>
+      <textarea class="goal-area" rows="2" placeholder="الشيء الواحد الأكثر أثراً هذا الأسبوع في العمل..." oninput="saveGoal('${id}',this.value)">${esc(sec.goal)}</textarea></div>
+    <div class="subsection"><div class="sub-header"><span class="sub-title">📌 ملاحظة</span><button class="add-btn" onclick="openAdd('done','${id}')">+ إضافة</button></div>`;
+    if(!sec.done.length) h+=`<div class="empty-state"><div class="empty-icon">📝</div>لا يوجد</div>`;
+    sec.done.forEach((it,i)=>{ h+=taskHtml('done',id,it,i,true); });
+    h+=`</div>`;
+  }
+
+  // ── Default task sections ──
+  else {
+    // pending FIRST
+    h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">🔴 متأخر / يحتاج إنجاز</span><button class="add-btn" onclick="openAdd('pending','${id}')">+ إضافة</button></div>`;
+    if(!sec.pending.length) h+=`<div class="empty-state"><div class="empty-icon">✨</div>لا شيء متأخر</div>`;
+    sec.pending.forEach((it,i)=>{ h+=taskHtml('pending',id,it,i,false); });
+    h+=`</div>`;
+    // followup
+    h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">👁 متابعة</span><button class="add-btn" onclick="openAdd('followup','${id}')">+ إضافة</button></div>`;
+    if(!sec.followup.length) h+=`<div class="empty-state" style="padding:10px"><div style="font-size:16px">—</div></div>`;
+    sec.followup.forEach((it,i)=>{ h+=taskHtml('followup',id,it,i,false); });
+    h+=`</div>`;
+    // goal
+    h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">🎯 هدف الأسبوع القادم</span></div>
+      <textarea class="goal-area" rows="2" placeholder="هدف واحد محدد..." oninput="saveGoal('${id}',this.value)">${esc(sec.goal)}</textarea></div>`;
+    // done LAST
+    if(sec.done.length>0) {
+      h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">✅ منجز (${toAr(sec.done.length)})</span><button class="add-btn" onclick="openAdd('done','${id}')">+ إضافة</button></div>`;
+      sec.done.forEach((it,i)=>{ h+=taskHtml('done',id,it,i,true); });
+      h+=`</div>`;
+    }
+  }
+
+  // Score (all sections)
+  h+=`<div class="subsection"><div class="sub-header"><span class="sub-title">التقييم الأسبوعي</span></div>
+    <div class="score-row">`;
+  for(let i=1;i<=5;i++){
+    const sel=sec.score===i;
+    h+=`<button class="score-btn ${sel?'sel':''}" style="${sel?`background:${SCORE_COLORS[i]};`:''}\"
+      onclick="setScore('${id}',${i})">${toAr(i)}</button>`;
+  }
+  h+=`</div></div>`;
+
+  cont.innerHTML=h;
+}
+
+function taskHtml(type,sec,text,idx,isDone) {
+  if (isDone) {
+    // Done items: check undoes to pending, trash permanently deletes (with confirm)
+    return `<div class="task-item done-item" id="task-${type}-${sec}-${idx}">
+      <div class="task-check checked" onclick="undoTask('${sec}',${idx})" title="إلغاء الإنجاز">✓</div>
+      <div class="task-text">${esc(text)}</div>
+      <button class="task-del" onclick="confirmDelete('${sec}',${idx})" title="حذف نهائي">🗑</button>
+    </div>`;
+  } else {
+    // Pending/followup: check completes, X moves to done (not delete)
+    const completeAction = type==='pending'
+      ? `completeTask('${sec}',${idx})`
+      : `moveToSection('${type}','${sec}',${idx},'done')`;
+    return `<div class="task-item" id="task-${type}-${sec}-${idx}">
+      <div class="task-check" onclick="${completeAction}" title="تحديد كمنجز"></div>
+      <div class="task-text">${esc(text)}</div>
+      <button class="task-del" onclick="archiveTask('${type}','${sec}',${idx})" title="نقل للمنجز">✓→</button>
+    </div>`;
+  }
+}
+
+function getDefaultTracks() {
+  return [
+    {name:'الماجستير',status:'waiting',note:'قدّمت على برنامج MBA — في انتظار الموافقة',next:'متابعة نتيجة القبول'},
+    {name:'اللغة الفرنسية',status:'planned',note:'مخطط — لم تبدأ بعد',next:'تحديد موعد البداية'},
+    {name:'دورات تدريبية',status:'planned',note:'قيد التحديد',next:'تحديد أولوية الدورة القادمة'}
+  ];
+}
+
+function addTrack() {
+  // Simple: open modal for track name then add
+  openCapture();
+}
+
+function toggleCheck(k) {
+  const {state,week,key}=getWeek();
+  if(!week.sections.health.checks) week.sections.health.checks={};
+  week.sections.health.checks[k]=!week.sections.health.checks[k];
+  state[key]=week; save(state);
+  const el=document.getElementById(`hc-${k}`);
+  if(el) el.classList.toggle('on',week.sections.health.checks[k]);
+}
+
+function setScore(id,v) {
+  const {state,week,key}=getWeek(); week.sections[id].score=v; state[key]=week; save(state);
+  renderDetail(id); refreshHome();
+}
+
+function saveGoal(id,v) {
+  const {state,week,key}=getWeek(); week.sections[id].goal=v; state[key]=week; save(state);
+}
+
+function completeTask(sec,idx) {
+  const {state,week,key}=getWeek();
+  const item=week.sections[sec].pending.splice(idx,1)[0];
+  week.sections[sec].done.push(item);
+  state[key]=week; save(state); renderDetail(sec); refreshHome();
+}
+
+function removeTask(type,sec,idx) {
+  const {state,week,key}=getWeek();
+  week.sections[sec][type].splice(idx,1);
+  state[key]=week; save(state); renderDetail(sec); refreshHome();
+}
+
+// Archive (X button) = move to done, not delete
+function archiveTask(type,sec,idx) {
+  const {state,week,key}=getWeek();
+  const item=week.sections[sec][type].splice(idx,1)[0];
+  week.sections[sec].done.unshift(item); // add to top of done
+  state[key]=week; save(state); renderDetail(sec); refreshHome();
+  showToast('✓ نُقلت للمنجز');
+}
+
+// Undo done → back to pending
+function undoTask(sec,idx) {
+  const {state,week,key}=getWeek();
+  const item=week.sections[sec].done.splice(idx,1)[0];
+  week.sections[sec].pending.unshift(item);
+  state[key]=week; save(state); renderDetail(sec); refreshHome();
+  showToast('↩ رُجّعت للمهام');
+}
+
+// Permanent delete with confirmation toast
+function confirmDelete(sec,idx) {
+  const {week}=getWeek();
+  const item=week.sections[sec].done[idx];
+  // Show undo-delete toast for 4s
+  let t=document.getElementById('app-toast');
+  const undoFn = 'undoDelete_'+Date.now();
+  window[undoFn] = function() {
+    clearTimeout(window[undoFn+'_t']);
+    showToast('↩ تم الإلغاء');
+  };
+  // Actually delete after 4s unless undo pressed
+  const {state,week:w,key}=getWeek();
+  w.sections[sec].done.splice(idx,1);
+  state[key]=w; save(state); renderDetail(sec); refreshHome();
+  showToastUndo('🗑 تم الحذف', ()=>{
+    // restore
+    const {state:s2,week:w2,key:k2}=getWeek();
+    w2.sections[sec].done.splice(idx,0,item);
+    s2[k2]=w2; save(s2); renderDetail(sec); refreshHome();
+  });
+}
+
+function moveToSection(fromType,sec,idx,toType) {
+  const {state,week,key}=getWeek();
+  const item=week.sections[sec][fromType].splice(idx,1)[0];
+  week.sections[sec][toType].push(item);
+  state[key]=week; save(state); renderDetail(sec); refreshHome();
+}
+
+// ═══════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════
+let mState={type:'pending',sec:'travel'};
+
+function openAdd(type,sec) {
+  mState={type,sec};
+  document.getElementById('modal-title').textContent=type==='done'?'+ إضافة إنجاز':type==='pending'?'+ إضافة مهمة':'+ إضافة متابعة';
+  buildModalChips(type,sec);
+  document.getElementById('modal-input').value='';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-input').focus(),300);
+}
+
+function openCapture() {
+  mState={type:'pending',sec:'travel'};
+  document.getElementById('modal-title').textContent='⚡ إضافة سريعة';
+  buildModalChips('pending','travel');
+  document.getElementById('modal-input').value='';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-input').focus(),300);
+}
+
+function buildModalChips(selType,selSec) {
+  // type chips
+  const tc=document.getElementById('type-chips');
+  tc.innerHTML=['done','pending','followup'].map(t=>{
+    const lbl=t==='done'?'✅ منجز':t==='pending'?'🔴 متأخر':'👁 متابعة';
+    return `<button class="chip-btn ${t===selType?'sel':''}" onclick="pickChip(this,'type','${t}')">${lbl}</button>`;
+  }).join('');
+  // sec chips
+  const sc=document.getElementById('sec-chips');
+  sc.innerHTML=SECTIONS.map(s=>`<button class="chip-btn ${s.id===selSec?'sel':''}" onclick="pickChip(this,'sec','${s.id}')">${s.icon} ${s.label}</button>`).join('');
+}
+
+function pickChip(btn,kind,val) {
+  if(kind==='type') mState.type=val; else mState.sec=val;
+  btn.closest('.chips-row').querySelectorAll('.chip-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function submitModal() {
+  const v=document.getElementById('modal-input').value.trim();
+  if(!v) return;
+  const {state,week,key}=getWeek();
+  week.sections[mState.sec][mState.type].push(v);
+  state[key]=week; save(state);
+  closeModal();
+  if(curSec===mState.sec && document.getElementById('screen-section').classList.contains('active')) renderDetail(curSec);
+  refreshHome();
+  showToast('✅ تم الحفظ');
+}
+
+function closeModal(e) {
+  if(!e||e.target===document.getElementById('modal')) document.getElementById('modal').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════
+// REVIEW — 7 questions (updated)
+// ═══════════════════════════════════════════
+const QS = [
+  {id:'energy', type:'scale10',
+   q:'طاقتك الآن من ١ إلى ١٠؟',
+   hint:'رقم فقط. هذا يحدد عمق الجلسة.'},
+  {id:'top_win', type:'textarea',
+   q:'الشيء الواحد الذي أنجزته وله أثر فعلي هذا الأسبوع؟',
+   hint:'ليس ما خططت — ما فعلته فعلاً وأثّر.',
+   ph:'مثال: أنهيت تقرير الأداء وتمت الموافقة على توصياتي...'},
+  {id:'step_fwd', type:'textarea',
+   q:'أين تقدمت وأخذت خطوة للأمام هذا الأسبوع؟',
+   hint:'لحظة تجاوزت فيها حدودك المعتادة.',
+   ph:'مثال: طلبت مسؤولية جديدة بدل الانتظار...'},
+  {id:'hold_back', type:'textarea',
+   q:'أين تراجعت وكان بإمكانك المضي؟',
+   hint:'السؤال الأهم. الإجابة الصادقة هنا تساوي أكثر من أي تخطيط.',
+   ph:'كن صريحاً مع نفسك...'},
+  {id:'triangle', type:'triangle',
+   q:'هل كنت في Drama Triangle؟ إذا نعم — Fact أم Fiction؟',
+   hint:'Victim: "ما أحد يقدّرني" | Rescuer: أخذت مهام غيرك | Persecutor: حكمت بقسوة'},
+  {id:'energy_cmp', type:'compare',
+   q:'طاقتك مقارنة بالأسبوع الماضي — أعلى / نفس / أقل؟',
+   hint:'ولماذا؟ جملة واحدة.'},
+  {id:'next_one', type:'textarea',
+   q:'الشيء الواحد للأسبوع القادم — ما هو؟',
+   hint:'شيء واحد فقط. المحدد يُنجز، العام يُنسى.',
+   ph:'هذا الأسبوع أنا أختار أن...'}
+];
+
+let qStep=0, qAnswers={};
+
+function startReview() {
+  // Resume from saved progress if exists
+  const {week}=getWeek();
+  if(week.reviewDraft && Object.keys(week.reviewDraft).length>0) {
+    qAnswers = {...week.reviewDraft};
+    qStep = week.reviewDraftStep||0;
+    showToast('↩ متابعة من حيث توقفت');
+  } else {
+    qStep=0; qAnswers={};
+  }
+  showScreen('screen-review'); setNav('nav-rev');
+  renderQ();
+}
+
+function renderQ() {
+  const q=QS[qStep], total=QS.length;
+  // progress
+  document.getElementById('prog-bar').innerHTML=
+    Array.from({length:total},(_,i)=>`<div class="prog-dot ${i<qStep?'done':''}"></div>`).join('');
+  document.getElementById('btn-prev').style.display=qStep===0?'none':'block';
+  document.getElementById('btn-next').textContent=qStep===total-1?'إنهاء الجلسة ✓':'التالي ›';
+  const saved=qAnswers[q.id]||'';
+  let inner=`<div class="q-num">السؤال ${toAr(qStep+1)} من ${toAr(total)}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-hint">${q.hint}</div>`;
+  if(q.type==='scale10') {
+    inner+=`<div class="scale-row">${Array.from({length:10},(_,i)=>`<button class="scale-btn ${saved==i+1?'sel':''}"
+      onclick="setA('${q.id}',${i+1});this.closest('.scale-row').querySelectorAll('.scale-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${toAr(i+1)}</button>`).join('')}</div>`;
+  } else if(q.type==='textarea') {
+    inner+=`<textarea class="review-ta" placeholder="${q.ph||''}" oninput="setA('${q.id}',this.value)">${esc(saved)}</textarea>`;
+  } else if(q.type==='triangle') {
+    const opts=[
+      {v:'no',l:'✅ لا، لم أكن في Triangle'},
+      {v:'victim',l:'😔 Victim — شعرت أن لا أحد يقدّر جهودي'},
+      {v:'rescuer',l:'🤝 Rescuer — أخذت مهام الآخرين على نفسي'},
+      {v:'persecutor',l:'⚠️ Persecutor — حكمت بقسوة على نفسي أو الآخرين'}
+    ];
+    inner+=`<div class="tri-opts">${opts.map(o=>`<button class="tri-opt ${saved===o.v?'sel':''}"
+      onclick="setA('${q.id}','${o.v}');this.closest('.tri-opts').querySelectorAll('.tri-opt').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${o.l}</button>`).join('')}</div>`;
+  } else if(q.type==='compare') {
+    const opts=['أعلى ⬆️','نفس ➡️','أقل ⬇️'];
+    inner+=`<div class="scale-row" style="margin-bottom:10px">${opts.map(o=>`<button class="scale-btn ${saved===o?'sel':''}" style="width:auto;padding:0 14px"
+      onclick="setA('${q.id}','${o}');this.closest('.scale-row').querySelectorAll('.scale-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')">${o}</button>`).join('')}</div>
+      <textarea class="review-ta" placeholder="لماذا؟ جملة واحدة..." oninput="setA('${q.id}_note',this.value)">${esc(qAnswers[q.id+'_note']||'')}</textarea>`;
+  }
+  document.getElementById('q-card').innerHTML=`<div class="q-card">${inner}</div>`;
+}
+
+function setA(id,v){
+  qAnswers[id]=v;
+  // Auto-save draft
+  const {state,week,key}=getWeek();
+  week.reviewDraft={...qAnswers};
+  week.reviewDraftStep=qStep;
+  state[key]=week; save(state);
+}
+function revNext(){if(qStep<QS.length-1){qStep++;renderQ();}else{finishReview();}}
+function revPrev(){if(qStep>0){qStep--;renderQ();}}
+
+function finishReview(isEdit) {
+  const {state,week,key}=getWeek();
+  const now=new Date().toISOString();
+  const wasCompleted=!!week.completedAt;
+  // Preserve original completion date if editing
+  const originalCompletedAt = week.completedAt || now;
+  week.review={...qAnswers, completedAt:originalCompletedAt};
+  week.completedAt=originalCompletedAt;
+  week.reviewDraft=null; week.reviewDraftStep=0;
+  // Edit log
+  if(isEdit||wasCompleted) {
+    if(!week.editLog) week.editLog=[];
+    week.editLog.push({editedAt:now, by:'user'});
+    week.lastEditedAt=now;
+  }
+  // Track review log
+  if(!state._reviewLog) state._reviewLog=[];
+  if(!wasCompleted) {
+    state._reviewLog.push({date:now, weekKey:key});
+    if(state._lastReview!==key) state._streak=(state._streak||0)+1;
+    state._lastReview=key;
+  }
+  state[key]=week; save(state);
+  renderSummary(week);
+}
+
+// ═══════════════════════════════════════════
+// SUMMARY
+// ═══════════════════════════════════════════
+function renderSummary(week) {
+  showScreen('screen-summary'); setNav('');
+  const scores=SECTIONS.map(s=>week.sections[s.id]?.score||0);
+  const avg=scores.filter(Boolean).reduce((a,b)=>a+b,0)/Math.max(scores.filter(Boolean).length,1);
+  const emojis=['','😓','😐','🙂','💪','🚀'];
+  const totalDone=SECTIONS.reduce((a,s)=>a+(week.sections[s.id]?.done?.length||0),0);
+  const totalPend=SECTIONS.reduce((a,s)=>a+(week.sections[s.id]?.pending?.length||0),0);
+  let h=`<div class="sum-header"><div class="sum-emoji">${emojis[Math.round(avg)]||'✅'}</div>
+    <h2>جلسة مكتملة</h2><p>${weekLabel()}</p></div>
+    <div class="scores-grid">`;
+  SECTIONS.filter(s=>week.sections[s.id]?.score).forEach(s=>{
+    const sc=week.sections[s.id].score;
+    h+=`<div class="sc-card"><span class="sc-icon">${s.icon}</span><span class="sc-label">${s.label}</span>
+      <span class="sc-score" style="color:${SCORE_COLORS[sc]}">${toAr(sc)}/٥</span></div>`;
+  });
+  h+=`</div>
+  <div class="sum-block"><div class="sum-block-lbl">📊 الأسبوع بالأرقام</div>
+    <div class="sum-block-text">✅ ${toAr(totalDone)} منجز · 🔴 ${toAr(totalPend)} متأخر للأسبوع القادم · 🔥 ${toAr(load()._streak||0)} أسبوع متواصل</div>
+  </div>`;
+  if(week.review?.top_win) h+=`<div class="sum-block"><div class="sum-block-lbl">⚡ الإنجاز الأبرز</div><div class="sum-block-text">${esc(week.review.top_win)}</div></div>`;
+  if(week.review?.hold_back) h+=`<div class="sum-block"><div class="sum-block-lbl">🔍 نقطة التراجع — للأسبوع القادم</div><div class="sum-block-text">${esc(week.review.hold_back)}</div></div>`;
+  if(week.review?.next_one) h+=`<div class="sum-block"><div class="sum-block-lbl">🎯 قرار الأسبوع القادم</div><div class="sum-block-text">${esc(week.review.next_one)}</div></div>`;
+  h+=`<div style="height:10px"></div>
+  <button class="export-btn" onclick="exportData()">⬆️ تصدير JSON — احفظه في iCloud</button>
+  <button class="done-btn" onclick="showScreen('screen-home');setNav('nav-home')">العودة للرئيسية ✓</button>
+  <div style="height:16px"></div>`;
+  document.getElementById('sum-content').innerHTML=h;
+}
+
+// ═══════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════
+function renderHistory() {
+  const state=load();
+  const weeks=Object.entries(state).filter(([k])=>k.startsWith('20')&&k.includes('-W')).sort((a,b)=>b[0].localeCompare(a[0]));
+  const cont=document.getElementById('hist-content');
+
+  // Review stats header
+  const log=state._reviewLog||[];
+  const thisMonth=new Date().toISOString().slice(0,7);
+  const monthCount=log.filter(r=>r.date.startsWith(thisMonth)).length;
+  const yearCount=log.filter(r=>r.date.startsWith(new Date().getFullYear()+'')).length;
+
+  let h=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px">
+    <div class="card-label" style="margin-bottom:8px">إحصائيات المراجعة</div>
+    <div style="display:flex;gap:16px">
+      <div style="text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:500;color:var(--main)">${toAr(monthCount)}</div><div style="font-size:11px;color:var(--text-muted)">هذا الشهر</div></div>
+      <div style="text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:500;color:var(--growth)">${toAr(yearCount)}</div><div style="font-size:11px;color:var(--text-muted)">هذا العام</div></div>
+      <div style="text-align:center"><div style="font-family:var(--mono);font-size:24px;font-weight:500;color:var(--warning)">${toAr(state._streak||0)}</div><div style="font-size:11px;color:var(--text-muted)">🔥 متواصل</div></div>
+    </div>
+  </div>`;
+
+  if(!weeks.length){cont.innerHTML=h+`<div class="empty-state" style="padding:40px 20px"><div class="empty-icon">📅</div>لا يوجد سجل بعد</div>`;return;}
+
+  weeks.forEach(([key,week])=>{
+    const done=SECTIONS.reduce((a,s)=>a+(week.sections?.[s.id]?.done?.length||0),0);
+    const pend=SECTIONS.reduce((a,s)=>a+(week.sections?.[s.id]?.pending?.length||0),0);
+    const revDate=week.completedAt?fmtDateAr(week.completedAt):'—';
+    const editedBadge=week.lastEditedAt?`<span class="hw-chip" style="background:#EEF2FF;color:var(--growth)">✏️ عُدّل ${fmtDateAr(week.lastEditedAt)}</span>`:'';
+    const isDraft=week.reviewDraft&&!week.completedAt;
+    h+=`<div class="hw-card" onclick="showWeekDetail('${key}')">
+      <div class="hw-top">
+        <span class="hw-date">${key}</span>
+        <span class="hw-energy" style="display:flex;align-items:center;gap:4px">
+          ${week.completedAt?'✅':'⏳'} ${revDate}
+        </span>
+      </div>
+      <div class="hw-chips">`;
+    SECTIONS.forEach(s=>{
+      const sc=week.sections?.[s.id]?.score;
+      if(sc) h+=`<span class="hw-chip" style="background:${SCORE_COLORS[sc]}18;color:${SCORE_COLORS[sc]}">${s.icon} ${toAr(sc)}/٥</span>`;
+    });
+    if(isDraft) h+=`<span class="hw-chip" style="background:#FEF3E2;color:var(--warning)">✏️ مسودة</span>`;
+    if(week.lastEditedAt&&week.completedAt) h+=editedBadge;
+    h+=`</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px">
+        ${toAr(done)} منجز · ${toAr(pend)} متأخر · طاقة ${week.energy?toAr(week.energy)+'/٥':'—'}
+      </div>
+    </div>`;
+  });
+  cont.innerHTML=h;
+}
+
+function showWeekDetail(key) {
+  const state=load();
+  const week=state[key];
+  if(!week) return;
+  // Build read-only summary sheet
+  const scores=SECTIONS.map(s=>week.sections?.[s.id]?.score||0);
+  const totalDone=SECTIONS.reduce((a,s)=>a+(week.sections?.[s.id]?.done?.length||0),0);
+  const totalPend=SECTIONS.reduce((a,s)=>a+(week.sections?.[s.id]?.pending?.length||0),0);
+  let h=`<div style="padding:0 16px 80px">
+
+    <!-- ── Week detail header ── -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0 14px;border-bottom:1px solid var(--border);margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+        <button class="back-btn" onclick="renderHistory();document.getElementById('hist-content').scrollTop=0">‹</button>
+        <div style="min-width:0">
+          <div style="font-size:16px;font-weight:700">${key}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">
+            ${week.completedAt?'✅ مكتملة · '+fmtDateAr(week.completedAt):'⏳ غير مكتملة'}
+          </div>
+          ${week.lastEditedAt?`<div style="font-size:11px;color:var(--growth);margin-top:2px">✏️ آخر تعديل: ${fmtDateAr(week.lastEditedAt)}</div>`:''}
+        </div>
+      </div>
+      <button onclick="editWeekReview('${key}')"
+        style="flex-shrink:0;padding:8px 14px;background:var(--bg2);border:1px solid var(--border);
+               border-radius:10px;font-family:var(--font);font-size:13px;font-weight:600;
+               cursor:pointer;color:var(--text-secondary)">
+        ✏️ تعديل
+      </button>
+    </div>
+
+    <div class="scores-grid" style="margin-bottom:14px">`;
+  SECTIONS.forEach(s=>{
+    const sc=week.sections?.[s.id]?.score;
+    if(sc) h+=`<div class="sc-card"><span class="sc-icon">${s.icon}</span><span class="sc-label">${s.label}</span><span class="sc-score" style="color:${SCORE_COLORS[sc]}">${toAr(sc)}/٥</span></div>`;
+  });
+  h+=`</div>
+  <div class="sum-block"><div class="sum-block-lbl">الأرقام</div>
+    <div class="sum-block-text">✅ ${toAr(totalDone)} منجز · 🔴 ${toAr(totalPend)} متأخر · طاقة ${week.energy?toAr(week.energy)+'/١٠':'—'}</div>
+  </div>`;
+  if(week.review?.top_win) h+=`<div class="sum-block"><div class="sum-block-lbl">⚡ الإنجاز الأبرز</div><div class="sum-block-text">${esc(week.review.top_win)}</div></div>`;
+  if(week.review?.hold_back) h+=`<div class="sum-block"><div class="sum-block-lbl">🔍 نقطة التراجع</div><div class="sum-block-text">${esc(week.review.hold_back)}</div></div>`;
+  if(week.review?.next_one) h+=`<div class="sum-block"><div class="sum-block-lbl">🎯 قرار الأسبوع</div><div class="sum-block-text">${esc(week.review.next_one)}</div></div>`;
+  if(week.review?.triangle&&week.review.triangle!=='no') h+=`<div class="sum-block"><div class="sum-block-lbl">Drama Triangle</div><div class="sum-block-text">${esc(week.review.triangle)}</div></div>`;
+  // Edit history log
+  if(week.editLog&&week.editLog.length>0) {
+    h+=`<div class="sum-block"><div class="sum-block-lbl">📋 سجل التعديلات</div><div class="sum-block-text">`;
+    week.editLog.forEach(e=>{
+      h+=`<div style="padding:3px 0;border-bottom:1px solid var(--bg2);font-size:12px">✏️ عُدّلت: ${fmtDateAr(e.editedAt)}</div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // All done tasks per section
+  h+=`<div class="sum-block"><div class="sum-block-lbl">✅ المنجزات التفصيلية</div>`;
+  SECTIONS.forEach(s=>{
+    const doneList=week.sections?.[s.id]?.done||[];
+    if(doneList.length) {
+      h+=`<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px">${s.icon} ${s.label}</div>`;
+      doneList.forEach(it=>{ h+=`<div style="font-size:13px;color:var(--text-primary);padding:3px 0;border-bottom:1px solid var(--bg2)">• ${esc(it)}</div>`; });
+      h+=`</div>`;
+    }
+  });
+  h+=`</div></div>`;
+  document.getElementById('hist-content').innerHTML=h;
+}
+
+// ═══════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════
+function exportData() {
+  const state=load();
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download=`rayan_weekly_${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  const s=load(); s._lastExport=new Date().toISOString(); save(s);
+  showToast('✅ تم التصدير — احفظه في iCloud Drive');
+}
+
+function triggerImport(){document.getElementById('import-file').click();}
+
+function importData(event) {
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e) {
+    try {
+      const inc=JSON.parse(e.target.result);
+      const cur=load(); const merged={...cur};
+      let added=0, updated=0;
+      Object.entries(inc).forEach(([k,v])=>{
+        if(k.startsWith('20')&&k.includes('-W')) {
+          if(!cur[k]){merged[k]=v;added++;}
+          else {
+            const cD=SECTIONS.reduce((a,s)=>a+(cur[k]?.sections?.[s.id]?.done?.length||0),0);
+            const iD=SECTIONS.reduce((a,s)=>a+(v?.sections?.[s.id]?.done?.length||0),0);
+            if(iD>cD||(!cur[k].completedAt&&v.completedAt)){merged[k]=v;updated++;}
+          }
+        } else if(k==='_streak') merged._streak=Math.max(cur._streak||0,inc._streak||0);
+      });
+      save(merged); refreshHome();
+      showToast('✅ دمج ناجح — '+toAr(added)+' جديد · '+toAr(updated)+' محدّث');
+    } catch(err){showToast('❌ ملف غير صالح');}
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════
+// INITIAL DATA — Rayan's notes
+// ═══════════════════════════════════════════
+function seedInitialData() {
+  const state=load();
+  if(state._seeded) return;
+  const {week,key}=getWeek();
+
+  // TRAVEL — Europe May 2026
+  week.sections.travel.pending=[
+    'حجز القطارات - من الفندق لديزني باريس (تاكسي أو مواصلات)',
+    'ترتيب التاكسي: فندق فرنسا ← محطة القطار',
+    'ترتيب التاكسي: محطة انترلاكن ← الفندق',
+    'ترتيب التاكسي: فندق انترلاكن ← محطة القطار',
+    'ترتيب التاكسي: محطة قطار ميلان ← الفندق',
+    'ترتيب التاكسي: فندق ميلان ← المطار',
+    'حجز أنشطة إضافية في أوروبا',
+    'تأمين مبلغ التسوق ٥٠,٠٠٠ ريال (أكل + سوبرماركت + تسوق)',
+    'تجهيز قائمة السفر الكاملة',
+    'تجهيز شنط السفر',
+    'تضبيط مقاعد رحلة أوروبا مايو ٢٠٢٦'
+  ];
+  week.sections.travel.done=[
+    'دفع حجوزات الفنادق في أوروبا',
+    'حجز قطار فرنسا ← انترلاكن',
+    'حجز قطار انترلاكن ← ميلان',
+    'تفعيل جوازات الأولاد',
+    'تأكيد موافقة أمهم (فارس ورؤى)',
+    'حجز ديزني لاند باريس',
+    'تاكسي: مطار فرنسا ← الفندق',
+    'فندق فرنسا: الإلغاء قبل ٢٢ مايو ٢٠٢٦ — مراجعة',
+    'فندق ميلان: الإلغاء قبل ٢٥ مايو ٢٠٢٦ — مراجعة'
+  ];
+  week.sections.travel.followup=[
+    'رحلة إسبانيا - مدريد نوفمبر ٢٠٢٦ (الزوجة والمولود الجديد)',
+    'تأشيرة والدة الزوجة من المغرب',
+    'حجز زيارة والدة الزوجة سبتمبر ٢٠٢٦'
+  ];
+
+  // FAMILY
+  week.sections.family.pending=[
+    'إصدار إقامة العاملة المنزلية',
+    'تضبيط أبشر للعاملة المنزلية',
+    'تضبيط برنامج بنكي لتحويل راتب العاملة لأهلها',
+    'شراء سيارة لين — بعد الحج أو إجازة الصيف (تحديد السيارة + تأمين المبلغ + الشراء)'
+  ];
+  week.sections.family.followup=[
+    'تجهيز أغراض المولود الجديد والسرير وكل ما يخص هذا الموضوع',
+    'حجز الزوجة والمولود الجديد لرحلة إسبانيا نوفمبر ٢٠٢٦'
+  ];
+  week.sections.family.goal='المولود الجديد متوقع ٢٣-٢٨ سبتمبر ٢٠٢٦ حسب كلام الدكتورة';
+
+  // GROWTH — tracks
+  week.sections.growth.tracks=getDefaultTracks();
+
+  state[key]=week;
+  state._seeded=true;
+  save(state);
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// ALL TASKS VIEW (from stat cards)
+// ═══════════════════════════════════════════
+function showAllTasks(type) {
+  const {week}=getWeek();
+  const typeLabel={pending:'🔴 كل المتأخرات',done:'✅ كل المنجزات',followup:'👁 كل المتابعات'};
+  let h=`<div style="padding:0 16px 80px">
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 0 16px;border-bottom:1px solid var(--border);margin-bottom:14px">
+      <button class="back-btn" onclick="showScreen('screen-home');setNav('nav-home')">‹</button>
+      <div style="font-size:16px;font-weight:700">${typeLabel[type]||type}</div>
+    </div>`;
+  let total=0;
+  SECTIONS.forEach(s=>{
+    const items=week.sections[s.id]?.[type]||[];
+    if(!items.length) return;
+    total+=items.length;
+    h+=`<div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px">${s.icon} ${s.label}</div>`;
+    items.forEach((it,i)=>{
+      if(type==='done') {
+        h+=`<div class="task-item done-item" style="margin-bottom:6px">
+          <div class="task-check checked" onclick="undoTask('${s.id}',${i});showAllTasks('${type}')">✓</div>
+          <div class="task-text">${esc(it)}</div>
+          <button class="task-del" onclick="confirmDelete('${s.id}',${i});showAllTasks('${type}')">🗑</button>
+        </div>`;
+      } else {
+        h+=`<div class="task-item" style="margin-bottom:6px">
+          <div class="task-check" onclick="completeTask('${s.id}',${i});showAllTasks('${type}')"></div>
+          <div class="task-text">${esc(it)}</div>
+          <button class="task-del" onclick="archiveTask('${type}','${s.id}',${i});showAllTasks('${type}')">✓→</button>
+        </div>`;
+      }
+    });
+    h+=`</div>`;
+  });
+  if(!total) h+=`<div class="empty-state" style="padding:40px"><div class="empty-icon">${type==='done'?'📝':'✨'}</div>${type==='done'?'لا يوجد منجزات بعد':'لا يوجد مهام متأخرة'}</div>`;
+  h+=`</div>`;
+  // Show in history screen (reuse)
+  showScreen('screen-history'); setNav('');
+  document.getElementById('hist-content').innerHTML=h;
+}
+
+// Undo-delete toast
+// Edit a past week's review answers
+function editWeekReview(key) {
+  const state=load();
+  const week=state[key];
+  if(!week) return;
+  // Load answers into review session
+  qAnswers = week.review ? {...week.review} : {};
+  qStep = 0;
+  // Override finishReview to mark as edit
+  window._editingWeekKey = key;
+  showScreen('screen-review'); setNav('nav-rev');
+  renderQ();
+  showToast('✏️ تعديل المراجعة — سيُسجَّل تاريخ التعديل');
+}
+
+// Override revNext for edit mode
+const _origRevNext = typeof revNext === 'function' ? revNext : null;
+function revNextOrFinish() {
+  if(qStep < QS.length-1) { qStep++; renderQ(); }
+  else {
+    if(window._editingWeekKey) {
+      // Save edit to specific week
+      const state=load();
+      const week=state[window._editingWeekKey];
+      const now=new Date().toISOString();
+      week.review={...qAnswers, completedAt:week.completedAt||now};
+      if(!week.editLog) week.editLog=[];
+      week.editLog.push({editedAt:now});
+      week.lastEditedAt=now;
+      state[window._editingWeekKey]=week;
+      save(state);
+      window._editingWeekKey=null;
+      showToast('✅ تم حفظ التعديل');
+      showScreen('screen-history'); setNav('nav-hist');
+      renderHistory();
+    } else {
+      finishReview();
+    }
+  }
+}
+
+// Reset ONLY current week data (for test sessions)
+function resetCurrentWeek() {
+  if(!confirm('مسح بيانات الأسبوع الحالي فقط؟')) return;
+  const state=load();
+  const key=weekKey();
+  delete state[key];
+  save(state);
+  refreshHome();
+  showToast('🗑 تم مسح الأسبوع الحالي');
+}
+
+function showToastUndo(msg, undoFn, dur) {
+  dur=dur||4000;
+  let t=document.getElementById('app-toast');
+  if(!t){t=document.createElement('div');t.id='app-toast';
+    t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A1714;color:#fff;padding:11px 16px;border-radius:12px;font-family:var(--font);font-size:13px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:all .25s;max-width:300px;text-align:center;display:flex;align-items:center;gap:10px;';
+    document.body.appendChild(t);}
+  t.innerHTML=`<span>${msg}</span><button onclick="(${undoFn.toString()})();showToast('↩ تم الإلغاء')" style="background:none;border:1px solid rgba(255,255,255,.4);color:white;padding:3px 10px;border-radius:6px;font-family:var(--font);font-size:12px;cursor:pointer;white-space:nowrap">تراجع</button>`;
+  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},dur);
+}
+
+function showToast(msg,dur) {
+  dur=dur||3000;
+  let t=document.getElementById('app-toast');
+  if(!t){t=document.createElement('div');t.id='app-toast';
+    t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A1714;color:#fff;padding:11px 18px;border-radius:12px;font-family:var(--font);font-size:13px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:all .25s;max-width:300px;text-align:center;';
+    document.body.appendChild(t);}
+  t.textContent=msg;
+  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)';},dur);
+}
+
+// ═══════════════════════════════════════════
+// EXPORT REMINDER — Sunday 9am
+// ═══════════════════════════════════════════
+function checkExportReminder() {
+  const now=new Date();
+  if(now.getDay()!==0||now.getHours()<9) return;
+  const state=load();
+  if(state._lastExport) {
+    const le=new Date(state._lastExport);
+    const sameWk=(d)=>{const j=new Date(d.getFullYear(),0,1);return d.getFullYear()+'-W'+String(Math.ceil(((d-j)/86400000+j.getDay()+1)/7)).padStart(2,'0');};
+    if(sameWk(le)===weekKey()) return;
+  }
+  if(document.getElementById('export-reminder')) return;
+  const b=document.createElement('div');
+  b.id='export-reminder';
+  b.style.cssText='background:#FEF3E2;border:1px solid #B8621A;border-radius:12px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;';
+  b.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:17px">☁️</span><div><div style="font-size:13px;font-weight:600;color:#7A3B10">تذكير النسخ الاحتياطي</div><div style="font-size:11px;color:#B8621A">صدّر بياناتك الأسبوعية واحفظها في iCloud</div></div></div><div style="display:flex;gap:5px"><button onclick="exportData();dismissReminder()" style="padding:6px 11px;background:#B8621A;color:white;border:none;border-radius:8px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer">تصدير</button><button onclick="dismissReminder()" style="padding:6px 9px;background:none;border:none;cursor:pointer;font-size:15px;color:#B8621A">×</button></div>';
+  const hc=document.getElementById('home-content');
+  if(hc) hc.insertBefore(b,hc.firstChild);
+}
+
+function dismissReminder() {
+  const b=document.getElementById('export-reminder');
+  if(b){b.style.opacity='0';setTimeout(()=>b.remove(),200);}
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// Service Worker
+if('serviceWorker' in navigator){
+  const sw=`const C='rayan-v3';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['/']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  const blob=new Blob([sw],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{
+  seedInitialData();
+  refreshHome();
+  checkExportReminder();
+  // Review button status
+  const wk=getWeek().week;
+  const navIcon=document.getElementById('nav-rev-icon');
+  const navLbl=document.getElementById('nav-rev-label');
+  if(navIcon&&navLbl) {
+    if(wk.completedAt) { navIcon.textContent='✅'; navLbl.textContent='مكتملة'; }
+    else if(wk.reviewDraft&&Object.keys(wk.reviewDraft).length>0) { navIcon.textContent='⏸️'; navLbl.textContent='متابعة'; }
+    else { navIcon.textContent='✍️'; navLbl.textContent='مراجعة'; }
+  }
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('modal').classList.contains('open')) submitModal();
+});
+</script>
+</body>
+</html>
