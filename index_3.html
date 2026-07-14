@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="RayanThings">
+<meta name="theme-color" content="#FAFAF9">
+<title>RayanThings</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+  :root{
+    --bg:#FAFAF9;
+    --card:#FFFFFF;
+    --ink:#22262B;
+    --ink-soft:#8A9099;
+    --line:#EAEBEE;
+    --accent:#4C9A8E;
+    --accent-soft:#E9F4F2;
+    --red:#D9695D;
+    --red-soft:#FBECEA;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Arabic","Segoe UI",Tahoma,sans-serif;
+    background:var(--bg); color:var(--ink);
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  header{
+    padding:20px 18px 14px; position:sticky; top:0; z-index:5;
+    background:var(--bg); border-bottom:1px solid var(--line);
+  }
+  header h1{margin:0; font-size:19px; font-weight:700;}
+  header p{margin:3px 0 0; font-size:12.5px; color:var(--ink-soft);}
+  .stats{display:flex; gap:8px; margin-top:14px;}
+  .stat{flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:9px 10px; text-align:center;}
+  .stat b{display:block; font-size:17px; font-weight:700;}
+  .stat span{font-size:10.5px; color:var(--ink-soft);}
+
+  main{padding:14px 16px 110px; max-width:640px; margin:0 auto;}
+
+  .section-title{
+    font-size:12px; font-weight:700; color:var(--ink-soft);
+    margin:20px 4px 8px; display:flex; align-items:center; gap:7px;
+    letter-spacing:.3px;
+  }
+  .section-title .dot{width:7px;height:7px;border-radius:50%; background:var(--ink-soft);}
+  .section-title.now .dot{background:var(--red);}
+  .section-title.later .dot{background:var(--accent);}
+
+  .card{
+    background:var(--card); border-radius:var(--radius); padding:13px 15px;
+    margin-bottom:9px; border:1px solid var(--line);
+  }
+  .card.is-done{opacity:.6;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .card-title{font-size:14.5px; font-weight:700; line-height:1.4;}
+  .card-cat{font-size:11px; color:var(--accent); font-weight:700; margin-bottom:2px;}
+  .card-date{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .badge{font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; white-space:nowrap;}
+  .badge.overdue{background:var(--red-soft); color:var(--red);}
+  .badge.ok{background:var(--accent-soft); color:var(--accent);}
+  .badge.done{background:#F0F1F2; color:#9A9FA6;}
+
+  .progress-bar{height:5px; background:var(--line); border-radius:5px; overflow:hidden; margin-top:9px;}
+  .progress-fill{height:100%; background:var(--accent); border-radius:5px; transition:width .3s;}
+  .progress-text{font-size:11px; color:var(--ink-soft); margin-top:5px;}
+
+  .checklist{margin-top:10px; display:flex; flex-direction:column; gap:4px;}
+  .check-item{display:flex; align-items:center; gap:6px; font-size:13px;}
+  .check-item .box{
+    width:18px; height:18px; border-radius:6px; border:1.5px solid #CCD1D8;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-size:11px; color:#fff; cursor:pointer;
+  }
+  .check-item.done .box{background:var(--accent); border-color:var(--accent);}
+  .check-item.done .txt{color:var(--ink-soft); text-decoration:line-through;}
+  .check-item .txt{flex:1; cursor:pointer;}
+  .reorder-btns{display:flex; flex-direction:column; gap:0;}
+  .reorder-btns button{
+    background:none; border:none; color:var(--ink-soft); font-size:11px;
+    padding:0 3px; cursor:pointer; line-height:1; font-family:inherit;
+  }
+
+  .payment-log{margin-top:8px; font-size:11.5px; color:var(--ink-soft);}
+  .payment-log div{display:flex; justify-content:space-between; padding:2px 0;}
+
+  .card-actions{display:flex; gap:12px; margin-top:10px; padding-top:9px; border-top:1px solid var(--line);}
+  .card-actions button{
+    background:none; border:none; font-size:12px; color:var(--ink-soft);
+    font-family:inherit; padding:3px 0; font-weight:600; cursor:pointer;
+  }
+  .card-actions button.danger{color:var(--red);}
+  .card-actions button.primary{color:var(--accent);}
+
+  .empty{text-align:center; padding:36px 20px; color:var(--ink-soft); font-size:13px;}
+
+  .fab{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:#fff; border:none; border-radius:28px;
+    padding:13px 26px; font-size:14.5px; font-weight:700; font-family:inherit;
+    box-shadow:0 6px 18px rgba(20,25,30,.18); z-index:10; cursor:pointer;
+  }
+
+  .habit-row{
+    background:var(--card); border-radius:var(--radius); padding:12px 15px;
+    border:1px solid var(--line); margin-bottom:8px;
+  }
+  .habit-top{display:flex; align-items:center; justify-content:space-between;}
+  .habit-info b{font-size:13.5px;}
+  .habit-info div{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+  .habit-toggle{
+    width:38px; height:38px; border-radius:50%; border:2px solid var(--accent);
+    background:#fff; color:var(--accent); font-size:17px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .habit-toggle.done{background:var(--accent); color:#fff;}
+  .habit-note{width:100%; margin-top:8px; font-size:12.5px; padding:8px 10px; border-radius:8px; border:1.5px solid var(--line); font-family:inherit; background:#FCFCFB;}
+
+  .overlay{position:fixed; inset:0; background:rgba(20,25,30,.42); z-index:20; display:none; align-items:flex-end; justify-content:center;}
+  .overlay.open{display:flex;}
+  .sheet{
+    background:#fff; width:100%; max-width:640px; border-radius:20px 20px 0 0;
+    padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+    max-height:88vh; overflow-y:auto; position:relative;
+  }
+  .sheet h2{margin:0 0 14px; font-size:17px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px;}
+  .field input[type=text], .field input[type=date], .field input[type=number], .field select, .field textarea{
+    width:100%; padding:10px 11px; border-radius:10px; border:1.5px solid var(--line);
+    font-size:13.5px; font-family:inherit; background:#FCFCFB;
+  }
+  .field textarea{resize:vertical; min-height:56px;}
+  .type-tabs{display:flex; gap:6px; margin-bottom:15px;}
+  .type-tab{flex:1; text-align:center; padding:9px 4px; border-radius:10px; font-size:11.5px; font-weight:700; border:1.5px solid var(--line); color:var(--ink-soft); cursor:pointer;}
+  .type-tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .checklist-input{display:flex; gap:7px; margin-bottom:7px;}
+  .checklist-input input{flex:1;}
+  .checklist-input button{background:var(--accent); color:#fff; border:none; border-radius:10px; padding:0 15px; font-size:16px; font-family:inherit;}
+  .chip-list{display:flex; flex-direction:column; gap:6px; margin-top:6px;}
+  .chip{background:#F3F4F5; border-radius:8px; padding:7px 10px; font-size:12.5px; display:flex; align-items:center; justify-content:space-between;}
+  .chip button{background:none; border:none; color:var(--ink-soft); font-size:14px; cursor:pointer; font-family:inherit;}
+  .save-btn{width:100%; background:var(--ink); color:#fff; border:none; border-radius:12px; padding:13px; font-size:14.5px; font-weight:700; margin-top:6px; font-family:inherit; cursor:pointer;}
+  .close-x{position:absolute; left:18px; top:15px; font-size:20px; color:var(--ink-soft); background:none; border:none; cursor:pointer;}
+  .checkbox-row{display:flex; align-items:center; gap:7px; margin-top:7px;}
+  .checkbox-row input{width:auto;}
+  .checkbox-row label{margin:0; font-size:12.5px; color:var(--ink); font-weight:500;}
+  .weekday-picker{display:flex; gap:5px; margin-top:6px;}
+  .wd-btn{flex:1; text-align:center; padding:7px 0; border-radius:8px; border:1.5px solid var(--line); font-size:11px; color:var(--ink-soft); cursor:pointer;}
+  .wd-btn.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+  datalist{}
+  .footer-tools{display:flex; justify-content:center; gap:16px; margin-top:24px; padding-bottom:8px;}
+  .footer-tools button{background:none; border:none; font-size:10.5px; color:var(--ink-soft); font-family:inherit;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>RayanThings</h1>
+  <p>كل شي مكتوب — تفتحه بس لما تحتاج</p>
+  <div class="stats">
+    <div class="stat"><b id="stat-now">0</b><span>الآن</span></div>
+    <div class="stat"><b id="stat-later">0</b><span>لاحقاً</span></div>
+    <div class="stat"><b id="stat-habits">0</b><span>عادات اليوم</span></div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<button class="fab" onclick="openModal()">+ إضافة</button>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <button class="close-x" onclick="closeModal()">×</button>
+    <h2>بند جديد</h2>
+
+    <div class="type-tabs" id="typeTabs">
+      <div class="type-tab active" data-type="project">مشروع</div>
+      <div class="type-tab" data-type="payment">التزام مالي</div>
+      <div class="type-tab" data-type="deadline">موعد بسيط</div>
+      <div class="type-tab" data-type="habit">عادة</div>
+    </div>
+
+    <div class="field">
+      <label>العنوان</label>
+      <input type="text" id="f-title" placeholder="مثال: سداد بطاقة الإنماء">
+    </div>
+    <div class="field">
+      <label>التصنيف (اختياري)</label>
+      <input type="text" id="f-cat" list="catList" placeholder="مثال: ديون / سفر / تأمين">
+      <datalist id="catList"></datalist>
+    </div>
+
+    <div id="dateFields">
+      <div class="field">
+        <label>التاريخ المستهدف</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="field" id="recurToggleWrap" style="display:none;">
+        <div class="checkbox-row">
+          <input type="checkbox" id="f-isRecurring">
+          <label for="f-isRecurring">يتكرر كل شهر</label>
+        </div>
+      </div>
+      <div class="field" id="recurWrap" style="display:none;">
+        <label>يوم الاستحقاق الشهري</label>
+        <input type="number" id="f-recurDay" min="1" max="28" placeholder="مثال: 7">
+        <div class="checkbox-row">
+          <input type="checkbox" id="f-weekendShift" checked>
+          <label for="f-weekendShift">لو وقع جمعة/سبت، أجّله للأحد</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" id="paymentFields" style="display:none;">
+      <label>إجمالي المبلغ (ريال)</label>
+      <input type="number" id="f-total" placeholder="0">
+    </div>
+
+    <div class="field" id="habitFreqWrap" style="display:none;">
+      <label>نمط التكرار</label>
+      <select id="f-habitFreq" onchange="onHabitFreqChange()">
+        <option value="daily">يومي</option>
+        <option value="weekdays">أيام محددة بالأسبوع</option>
+        <option value="weekly">مرة أسبوعياً (بلا يوم محدد)</option>
+      </select>
+      <div class="weekday-picker" id="weekdayPicker" style="display:none;">
+        <div class="wd-btn" data-d="0">أحد</div>
+        <div class="wd-btn" data-d="1">اثنين</div>
+        <div class="wd-btn" data-d="2">ثلاثاء</div>
+        <div class="wd-btn" data-d="3">أربعاء</div>
+        <div class="wd-btn" data-d="4">خميس</div>
+        <div class="wd-btn" data-d="5">جمعة</div>
+        <div class="wd-btn" data-d="6">سبت</div>
+      </div>
+    </div>
+
+    <div class="field" id="checklistFieldWrap">
+      <label>خطوات فرعية (اختياري)</label>
+      <div class="checklist-input">
+        <input type="text" id="f-checkItem" placeholder="أضف خطوة واضغط +">
+        <button onclick="addChecklistDraft()">+</button>
+      </div>
+      <div class="chip-list" id="checklistDraftList"></div>
+    </div>
+
+    <div class="field">
+      <label>ملاحظات (اختياري)</label>
+      <textarea id="f-notes" placeholder="أي تفاصيل إضافية"></textarea>
+    </div>
+
+    <button class="save-btn" onclick="saveItem()">حفظ</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='rayanthings_items_v2';
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let checklistDraft = [];
+let currentType = 'project';
+let selectedWeekdays = [];
+
+if(navigator.storage && navigator.storage.persist){
+  navigator.storage.persist().catch(()=>{});
+}
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); render(); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+function shiftIfWeekend(date){
+  const d = new Date(date);
+  const day = d.getDay();
+  if(day===5) d.setDate(d.getDate()+2);
+  else if(day===6) d.setDate(d.getDate()+1);
+  return d;
+}
+function nextRecurrence(item){
+  const today = new Date(); today.setHours(0,0,0,0);
+  let candidate = new Date(today.getFullYear(), today.getMonth(), item.recurDay);
+  if(item.weekendShift) candidate = shiftIfWeekend(candidate);
+  if(candidate < today){
+    candidate = new Date(today.getFullYear(), today.getMonth()+1, item.recurDay);
+    if(item.weekendShift) candidate = shiftIfWeekend(candidate);
+  }
+  return candidate;
+}
+function getEffectiveDate(item){
+  if(item.isRecurring && item.recurDay) return nextRecurrence(item);
+  if(item.date) return new Date(item.date);
+  return null;
+}
+function daysUntil(date){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(date); d.setHours(0,0,0,0);
+  return Math.round((d-today)/86400000);
+}
+function fmtDate(date){
+  if(!date) return '';
+  return new Date(date).toLocaleDateString('ar-SA-u-ca-gregory',{day:'numeric',month:'short'});
+}
+function bucket(item){
+  if(item.status==='done') return 'done';
+  const eff = getEffectiveDate(item);
+  if(!eff) return 'later';
+  return daysUntil(eff)<=7 ? 'now' : 'later';
+}
+function isOverdue(item){
+  const eff = getEffectiveDate(item);
+  return eff && daysUntil(eff)<0;
+}
+
+// ---- Modal ----
+function openModal(){ document.getElementById('overlay').classList.add('open'); }
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+  ['f-title','f-cat','f-date','f-recurDay','f-total','f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-isRecurring').checked=false;
+  checklistDraft=[]; selectedWeekdays=[];
+  renderChecklistDraft(); renderWeekdayPicker();
+  setType('project');
+  refreshCatList();
+}
+document.getElementById('typeTabs').addEventListener('click', e=>{
+  const tab = e.target.closest('.type-tab'); if(!tab) return;
+  setType(tab.dataset.type);
+});
+function setType(type){
+  currentType = type;
+  document.querySelectorAll('.type-tab').forEach(t=>t.classList.toggle('active', t.dataset.type===type));
+  document.getElementById('paymentFields').style.display = type==='payment' ? 'block':'none';
+  document.getElementById('recurToggleWrap').style.display = type==='payment' ? 'block':'none';
+  document.getElementById('checklistFieldWrap').style.display = (type==='habit') ? 'none':'block';
+  document.getElementById('dateFields').style.display = (type==='habit') ? 'none':'block';
+  document.getElementById('habitFreqWrap').style.display = (type==='habit') ? 'block':'none';
+  toggleRecurFields();
+}
+document.getElementById('f-isRecurring').addEventListener('change', toggleRecurFields);
+function toggleRecurFields(){
+  const isRecur = document.getElementById('f-isRecurring').checked && currentType==='payment';
+  document.getElementById('recurWrap').style.display = isRecur ? 'block':'none';
+}
+function onHabitFreqChange(){
+  const freq = document.getElementById('f-habitFreq').value;
+  document.getElementById('weekdayPicker').style.display = freq==='weekdays' ? 'flex':'none';
+}
+document.getElementById('weekdayPicker').addEventListener('click', e=>{
+  const btn = e.target.closest('.wd-btn'); if(!btn) return;
+  const d = parseInt(btn.dataset.d);
+  if(selectedWeekdays.includes(d)) selectedWeekdays = selectedWeekdays.filter(x=>x!==d);
+  else selectedWeekdays.push(d);
+  renderWeekdayPicker();
+});
+function renderWeekdayPicker(){
+  document.querySelectorAll('.wd-btn').forEach(b=>{
+    b.classList.toggle('active', selectedWeekdays.includes(parseInt(b.dataset.d)));
+  });
+}
+function refreshCatList(){
+  const cats = [...new Set(items.map(i=>i.category).filter(Boolean))];
+  document.getElementById('catList').innerHTML = cats.map(c=>`<option value="${c}">`).join('');
+}
+function addChecklistDraft(){
+  const input = document.getElementById('f-checkItem');
+  const val = input.value.trim(); if(!val) return;
+  checklistDraft.push({id:uid(), text:val, done:false});
+  input.value=''; renderChecklistDraft();
+}
+function renderChecklistDraft(){
+  document.getElementById('checklistDraftList').innerHTML = checklistDraft.map(c=>`
+    <div class="chip">${c.text}<button onclick="removeChecklistDraft('${c.id}')">×</button></div>
+  `).join('');
+}
+function removeChecklistDraft(id){ checklistDraft = checklistDraft.filter(c=>c.id!==id); renderChecklistDraft(); }
+
+function saveItem(){
+  const title = document.getElementById('f-title').value.trim();
+  if(!title){ alert('اكتب عنوان البند'); return; }
+  const item = {
+    id: uid(), type: currentType, title,
+    category: document.getElementById('f-cat').value.trim(),
+    date: document.getElementById('f-date').value || null,
+    isRecurring: currentType==='payment' && document.getElementById('f-isRecurring').checked,
+    recurDay: parseInt(document.getElementById('f-recurDay').value) || null,
+    weekendShift: document.getElementById('f-weekendShift').checked,
+    total: parseFloat(document.getElementById('f-total').value) || 0,
+    payments: [],
+    checklist: currentType==='habit' ? [] : checklistDraft.slice(),
+    notes: document.getElementById('f-notes').value.trim(),
+    status: 'active',
+    habitFreq: currentType==='habit' ? document.getElementById('f-habitFreq').value : null,
+    habitWeekdays: currentType==='habit' ? selectedWeekdays.slice() : [],
+    habitLog: {},
+    completedAt: null,
+    createdAt: new Date().toISOString()
+  };
+  items.push(item); save(); closeModal();
+}
+
+function toggleCheck(itemId, checkId){
+  const item = items.find(i=>i.id===itemId);
+  const c = item.checklist.find(c=>c.id===checkId);
+  c.done = !c.done; save();
+}
+function moveCheck(itemId, checkId, dir){
+  const item = items.find(i=>i.id===itemId);
+  const idx = item.checklist.findIndex(c=>c.id===checkId);
+  const newIdx = idx+dir;
+  if(newIdx<0 || newIdx>=item.checklist.length) return;
+  [item.checklist[idx], item.checklist[newIdx]] = [item.checklist[newIdx], item.checklist[idx]];
+  save();
+}
+function markDone(itemId){
+  const item = items.find(i=>i.id===itemId);
+  if(item.status==='done'){ item.status='active'; item.completedAt=null; }
+  else { item.status='done'; item.completedAt=new Date().toISOString(); }
+  save();
+}
+function deleteItem(itemId){
+  if(!confirm('حذف هذا البند نهائياً؟ لا يمكن التراجع.')) return;
+  items = items.filter(i=>i.id!==itemId); save();
+}
+function addPayment(itemId){
+  const item = items.find(i=>i.id===itemId);
+  const amt = prompt('مبلغ الدفعة (ريال):');
+  if(!amt || isNaN(amt) || parseFloat(amt)<=0) return;
+  item.payments.push({date:new Date().toISOString().slice(0,10), amount:parseFloat(amt)});
+  save();
+}
+function paidTotal(item){ return (item.payments||[]).reduce((s,p)=>s+p.amount,0); }
+
+// ---- Habits ----
+function habitDueToday(item){
+  const day = new Date().getDay();
+  if(item.habitFreq==='daily') return true;
+  if(item.habitFreq==='weekdays') return item.habitWeekdays.includes(day);
+  return false; // weekly handled separately
+}
+function weekKey(date){
+  const d = new Date(date);
+  const first = new Date(d.getFullYear(),0,1);
+  const days = Math.floor((d-first)/86400000);
+  const week = Math.ceil((days+first.getDay()+1)/7);
+  return `${d.getFullYear()}-W${week}`;
+}
+function habitLogKey(item){
+  return item.habitFreq==='weekly' ? weekKey(new Date()) : new Date().toISOString().slice(0,10);
+}
+function toggleHabit(itemId){
+  const item = items.find(i=>i.id===itemId);
+  const key = habitLogKey(item);
+  const cur = item.habitLog[key] || {done:false, note:''};
+  cur.done = !cur.done;
+  item.habitLog[key] = cur;
+  save();
+}
+function updateHabitNote(itemId, val){
+  const item = items.find(i=>i.id===itemId);
+  const key = habitLogKey(item);
+  const cur = item.habitLog[key] || {done:false, note:''};
+  cur.note = val;
+  item.habitLog[key] = cur;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); // silent save, no re-render (avoid losing focus)
+}
+function habitStreak(item){
+  let streak=0;
+  if(item.habitFreq==='weekly'){
+    let d = new Date();
+    while(true){
+      const key = weekKey(d);
+      if(item.habitLog[key] && item.habitLog[key].done){ streak++; d.setDate(d.getDate()-7); }
+      else break;
+    }
+    return streak;
+  }
+  let d = new Date();
+  while(true){
+    if(item.habitFreq==='weekdays' && !item.habitWeekdays.includes(d.getDay())){
+      d.setDate(d.getDate()-1); continue;
+    }
+    const key = d.toISOString().slice(0,10);
+    if(item.habitLog[key] && item.habitLog[key].done){ streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify(items,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'RayanThings-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function importData(){
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='.json';
+  inp.onchange = e=>{
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(confirm('استيراد هذه البيانات سيستبدل بياناتك الحالية. متابعة؟')){ items = data; save(); }
+      }catch(err){ alert('ملف غير صالح'); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+function cardHTML(item){
+  const b = bucket(item);
+  const eff = getEffectiveDate(item);
+  const overdue = isOverdue(item) && item.status!=='done';
+  const badgeLabel = item.status==='done' ? 'منجز' : (overdue ? 'متأخر' : (b==='now' ? 'قريب' : 'لاحقاً'));
+  const badgeCls = item.status==='done' ? 'done' : (overdue ? 'overdue' : 'ok');
+
+  let progressHTML='';
+  if(item.type==='payment' && item.total>0){
+    const paid = paidTotal(item);
+    const pct = Math.min(100, Math.round((paid/item.total)*100));
+    progressHTML = `
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-text">${paid.toLocaleString()} من ${item.total.toLocaleString()} ريال — متبقي ${(item.total-paid).toLocaleString()}</div>`;
+    if(item.payments && item.payments.length){
+      progressHTML += `<div class="payment-log">` + item.payments.slice().reverse().map(p=>`<div><span>${fmtDate(p.date)}</span><span>${p.amount.toLocaleString()} ريال</span></div>`).join('') + `</div>`;
+    }
+  } else if(item.checklist && item.checklist.length){
+    const done = item.checklist.filter(c=>c.done).length;
+    const pct = Math.round((done/item.checklist.length)*100);
+    progressHTML = `<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><div class="progress-text">${done} من ${item.checklist.length} — ${pct}%</div>`;
+  }
+
+  let checklistHTML='';
+  if(item.checklist && item.checklist.length){
+    checklistHTML = `<div class="checklist">` + item.checklist.map((c,idx)=>`
+      <div class="check-item ${c.done?'done':''}">
+        <div class="box" onclick="toggleCheck('${item.id}','${c.id}')">${c.done?'✓':''}</div>
+        <span class="txt" onclick="toggleCheck('${item.id}','${c.id}')">${c.text}</span>
+        <div class="reorder-btns">
+          <button onclick="moveCheck('${item.id}','${c.id}',-1)">▲</button>
+          <button onclick="moveCheck('${item.id}','${c.id}',1)">▼</button>
+        </div>
+      </div>`).join('') + `</div>`;
+  }
+
+  const dateLabel = item.isRecurring ? `يتكرر شهرياً · القادم: ${fmtDate(eff)}` : (eff ? fmtDate(eff) : '');
+  const completedLabel = item.status==='done' && item.completedAt ? ` · أُنجز في ${fmtDate(item.completedAt)}` : '';
+
+  return `
+    <div class="card ${item.status==='done'?'is-done':''}">
+      <div class="card-top">
+        <div>
+          ${item.category ? `<div class="card-cat">${item.category}</div>`:''}
+          <div class="card-title">${item.title}</div>
+          ${dateLabel || completedLabel ? `<div class="card-date">${dateLabel}${completedLabel}</div>`:''}
+        </div>
+        <div class="badge ${badgeCls}">${badgeLabel}</div>
+      </div>
+      ${progressHTML}
+      ${checklistHTML}
+      ${item.notes ? `<div style="font-size:12px;color:var(--ink-soft);margin-top:8px;">${item.notes}</div>`:''}
+      <div class="card-actions">
+        ${item.type==='payment' ? `<button class="primary" onclick="addPayment('${item.id}')">تسجيل دفعة</button>`:''}
+        <button onclick="markDone('${item.id}')">${item.status==='done'?'إرجاع لنشط':'تم ✓'}</button>
+        <button class="danger" onclick="deleteItem('${item.id}')">حذف</button>
+      </div>
+    </div>`;
+}
+
+function habitHTML(item){
+  const due = item.habitFreq==='weekly' ? true : habitDueToday(item);
+  const key = habitLogKey(item);
+  const log = item.habitLog[key] || {done:false, note:''};
+  const streak = habitStreak(item);
+  const freqLabel = item.habitFreq==='daily' ? 'يومياً' : item.habitFreq==='weekly' ? 'أسبوعياً' : 'أيام محددة';
+  return `
+    <div class="habit-row">
+      <div class="habit-top">
+        <div class="habit-info">
+          <b>${item.title}</b>
+          <div>${freqLabel}${streak>0 ? ' · متتالية '+streak : ''}</div>
+        </div>
+        <div class="habit-toggle ${log.done?'done':''}" onclick="toggleHabit('${item.id}')" style="${!due?'opacity:.35':''}">${log.done?'✓':''}</div>
+      </div>
+      <input class="habit-note" placeholder="ملاحظة (اختياري)" value="${log.note||''}" oninput="updateHabitNote('${item.id}', this.value)">
+    </div>`;
+}
+
+function render(){
+  refreshCatList();
+  const habits = items.filter(i=>i.type==='habit');
+  const others = items.filter(i=>i.type!=='habit');
+  const groups = {now:[], later:[], done:[]};
+  others.forEach(i=> groups[bucket(i)].push(i));
+  ['now','later'].forEach(g=> groups[g].sort((a,b)=>{
+    const da=getEffectiveDate(a), db=getEffectiveDate(b);
+    if(!da) return 1; if(!db) return -1; return da-db;
+  }));
+
+  let html='';
+  if(habits.length){
+    html += `<div class="section-title"><span class="dot"></span>العادات</div>`;
+    habits.forEach(h=> html += habitHTML(h));
+  }
+  if(groups.now.length){
+    html += `<div class="section-title now"><span class="dot"></span>الآن</div>`;
+    groups.now.forEach(i=> html += cardHTML(i));
+  }
+  if(groups.later.length){
+    html += `<div class="section-title later"><span class="dot"></span>لاحقاً</div>`;
+    groups.later.forEach(i=> html += cardHTML(i));
+  }
+  if(groups.done.length){
+    html += `<div class="section-title"><span class="dot"></span>منجز</div>`;
+    groups.done.forEach(i=> html += cardHTML(i));
+  }
+  if(!others.length && !habits.length){
+    html = `<div class="empty">لا يوجد شيء بعد.<br>اضغط "+ إضافة" لتبدأ.</div>`;
+  }
+  html += `<div class="footer-tools"><button onclick="exportData()">تصدير نسخة احتياطية</button><button onclick="importData()">استيراد نسخة</button></div>`;
+  document.getElementById('main').innerHTML = html;
+
+  document.getElementById('stat-now').textContent = groups.now.length;
+  document.getElementById('stat-later').textContent = groups.later.length;
+  const dueHabits = habits.filter(h=> h.habitFreq==='weekly' ? true : habitDueToday(h));
+  const doneHabitsToday = dueHabits.filter(h=>{ const k=habitLogKey(h); return h.habitLog[k] && h.habitLog[k].done; });
+  document.getElementById('stat-habits').textContent = doneHabitsToday.length + '/' + dueHabits.length;
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').then(()=>{}).catch(err=>console.warn('SW registration failed:', err));
+  });
+}
+
+render();
+</script>
+</body>
+</html>
